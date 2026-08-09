@@ -7,6 +7,12 @@ import { Textarea } from "./components/textarea";
 import { Checkbox } from "./components/checkbox/checkbox";
 import { Radio } from "./components/radio/radio";
 import { Switch } from "./components/switch/switch";
+import { Label } from "./components/label/label";
+import {
+	RadioGroup,
+	RadioGroupItem,
+} from "./components/radio-group/radio-group";
+import { FormField } from "./components/form-field/form-field";
 
 function App() {
 	const options: SelectOption[] = [
@@ -142,6 +148,81 @@ function App() {
 					checked={enabled}
 					onChange={(event) => setEnabled(event.target.checked)}
 				/>
+
+				<div className="space-y-2">
+					<Label htmlFor="email" required>
+						Email Address
+					</Label>
+
+					<Input id="email" type="email" placeholder="Enter email" />
+				</div>
+
+				<div className="max-w-5xl space-y-8">
+					<div>
+						<h2 className="text-lg font-semibold">Status</h2>
+
+						<p className="mt-1 text-sm text-muted-foreground">
+							Select the current status.
+						</p>
+					</div>
+
+					<RadioGroup
+						value={status}
+						onValueChange={setStatus}
+						name="status"
+					>
+						<RadioGroupItem
+							value="active"
+							label="Active"
+							description="The item is currently active."
+						/>
+
+						<RadioGroupItem
+							value="inactive"
+							label="Inactive"
+							description="The item is currently inactive."
+						/>
+
+						<RadioGroupItem
+							value="archived"
+							label="Archived"
+							description="This item is no longer active."
+						/>
+
+						<RadioGroupItem
+							value="disabled"
+							label="Disabled option"
+							description="This option cannot be selected."
+							disabled
+						/>
+					</RadioGroup>
+
+					<div className="rounded-lg border border-border bg-card p-4">
+						<p className="text-sm text-muted-foreground">
+							Selected value
+						</p>
+
+						<p className="mt-1 font-medium">{status}</p>
+					</div>
+				</div>
+
+				<div>
+					<RadioGroup defaultValue="active">
+						<RadioGroupItem value="active" label="Active" />
+						<RadioGroupItem value="inactive" label="Inactive" />
+					</RadioGroup>
+				</div>
+
+				<div>
+					<FormField
+						label="Username"
+						htmlFor="username"
+						required
+						error="Please enter a valid username."
+					>
+						<Input id="username" type="username" />
+					</FormField>
+				</div>
 			</div>
 		</main>
 	);
