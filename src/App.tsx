@@ -5,6 +5,8 @@ import { Input } from "./components/input/input";
 import { Select, type SelectOption } from "./components/select/select";
 import { Textarea } from "./components/textarea";
 import { Checkbox } from "./components/checkbox/checkbox";
+import { Radio } from "./components/radio/radio";
+import { Switch } from "./components/switch/switch";
 
 function App() {
 	const options: SelectOption[] = [
@@ -19,6 +21,7 @@ function App() {
 	];
 	const [status, setStatus] = useState("ACTIVE");
 	const [accepted, setAccepted] = useState(false);
+	const [enabled, setEnabled] = useState(false);
 
 	console.log(accepted);
 
@@ -116,6 +119,29 @@ function App() {
 						onChange={(event) => setAccepted(event.target.checked)}
 					/>
 				</div>
+
+				<div className="flex flex-col gap-3">
+					<Radio
+						name="status"
+						value="active"
+						label="Active"
+						defaultChecked
+					/>
+
+					<Radio name="status" value="inactive" label="Inactive" />
+
+					<Radio
+						name="status"
+						value="disabled"
+						label="Disabled"
+						disabled
+					/>
+				</div>
+				<Switch
+					label="Active"
+					checked={enabled}
+					onChange={(event) => setEnabled(event.target.checked)}
+				/>
 			</div>
 		</main>
 	);
