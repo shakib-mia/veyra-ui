@@ -31,7 +31,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "./components/dropdown-menu/dropdown-menu";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Car, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { Tooltip } from "./components/tooltip/tooltip";
 import {
 	Popover,
@@ -41,8 +41,26 @@ import {
 	PopoverTitle,
 	PopoverTrigger,
 } from "./components/popover/popover";
+import {
+	Tabs,
+	TabsContent,
+	TabsList,
+	TabsTrigger,
+} from "./components/tabs/tabs";
+import {
+	Accordion,
+	AccordionContent,
+	AccordionItem,
+	AccordionTrigger,
+} from "./components/accordion/accordion";
+import { Avatar } from "./components/avatar/avatar";
+import { Spinner } from "./components/spinner/spinner";
+import { EmptyState } from "./components/empty-state/empty-state";
+import { Pagination } from "./components/pagination/pagination";
 
 function App() {
+	const [page, setPage] = useState(1);
+
 	const options: SelectOption[] = [
 		{
 			label: "Active",
@@ -363,6 +381,90 @@ function App() {
 						</div>
 					</PopoverContent>
 				</Popover>
+
+				<Tabs defaultValue="overview">
+					<TabsList>
+						<TabsTrigger value="overview">Overview</TabsTrigger>
+
+						<TabsTrigger value="vehicles">Vehicles</TabsTrigger>
+
+						<TabsTrigger value="work-orders">
+							Work Orders
+						</TabsTrigger>
+
+						<TabsTrigger value="invoices">Invoices</TabsTrigger>
+					</TabsList>
+
+					<TabsContent value="overview">
+						<Card>
+							<CardContent>Customer overview</CardContent>
+						</Card>
+					</TabsContent>
+				</Tabs>
+
+				<Accordion defaultValue="vehicle">
+					<AccordionItem value="vehicle">
+						<AccordionTrigger value="vehicle">
+							Vehicle Information
+						</AccordionTrigger>
+
+						<AccordionContent value="vehicle">
+							<div className="grid grid-cols-2 gap-4">
+								<div>
+									<p className="text-xs text-muted-foreground">
+										Registration No.
+									</p>
+
+									<p className="font-medium">DHA-123456</p>
+								</div>
+
+								<div>
+									<p className="text-xs text-muted-foreground">
+										Model
+									</p>
+
+									<p className="font-medium">Toyota Axio</p>
+								</div>
+							</div>
+						</AccordionContent>
+					</AccordionItem>
+
+					<AccordionItem value="customer">
+						<AccordionTrigger value="customer">
+							Customer Information
+						</AccordionTrigger>
+
+						<AccordionContent value="customer">
+							Customer details here...
+						</AccordionContent>
+					</AccordionItem>
+				</Accordion>
+				<div className="-space-x-4 flex items-center">
+					<Avatar size="sm" fallback="SM" />
+					<Avatar size="md" fallback="SM" />
+					<Avatar size="lg" fallback="SM" />
+					<Avatar size="xl" fallback="SM" />
+				</div>
+
+				<Spinner size="sm" />
+				<Spinner size="md" />
+				<Spinner size="lg" />
+				<Spinner size="xl" />
+
+				<div className="rounded-xl border border-border bg-card">
+					<EmptyState
+						icon={<Car size={22} />}
+						title="No vehicles yet"
+						description="Add your first vehicle to get started."
+						action={<Button>Add Vehicle</Button>}
+					/>
+				</div>
+
+				<Pagination
+					page={page}
+					totalPages={10}
+					onPageChange={setPage}
+				/>
 			</div>
 		</main>
 	);
