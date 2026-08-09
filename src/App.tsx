@@ -1,3 +1,4 @@
+import { Badge } from "./components/badge";
 import { Button } from "./components/button/button";
 
 function App() {
@@ -30,6 +31,22 @@ function App() {
 					<Button as="a" href="#" variant="link">
 						Link
 					</Button>
+				</div>
+
+				<div className="flex flex-wrap gap-3 items-center mt-8">
+					<Badge>Default</Badge>
+
+					<Badge variant="primary">Active</Badge>
+
+					<Badge variant="success">Completed</Badge>
+
+					<Badge variant="warning">Pending</Badge>
+
+					<Badge variant="danger">Cancelled</Badge>
+
+					<Badge variant="info">Processing</Badge>
+
+					<Badge variant="outline">Draft</Badge>
 				</div>
 			</div>
 		</main>
