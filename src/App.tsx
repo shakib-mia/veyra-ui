@@ -1,6 +1,7 @@
 import { Badge } from "./components/badge";
 import { Button } from "./components/button/button";
 import { Input } from "./components/input/input";
+import { Textarea } from "./components/textarea";
 
 function App() {
 	return (
@@ -62,6 +63,13 @@ function App() {
 						required
 						autoComplete="email"
 					/>
+				</div>
+				<div className="grid grid-cols-4 gap-3 items-center mt-8">
+					<Textarea className="resize-none" size="sm" />
+
+					<Textarea className="resize-none" size="md" />
+
+					<Textarea className="resize-none" size="lg" />
 				</div>
 			</div>
 		</main>
