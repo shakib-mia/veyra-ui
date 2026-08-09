@@ -13,6 +13,34 @@ import {
 	RadioGroupItem,
 } from "./components/radio-group/radio-group";
 import { FormField } from "./components/form-field/form-field";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardFooter,
+	CardHeader,
+	CardTitle,
+} from "./components/card/card";
+import { Separator } from "./components/separator/separator";
+import { Alert } from "./components/alert/alert";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from "./components/dropdown-menu/dropdown-menu";
+import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Tooltip } from "./components/tooltip/tooltip";
+import {
+	Popover,
+	PopoverContent,
+	PopoverDescription,
+	PopoverHeader,
+	PopoverTitle,
+	PopoverTrigger,
+} from "./components/popover/popover";
 
 function App() {
 	const options: SelectOption[] = [
@@ -223,6 +251,118 @@ function App() {
 						<Input id="username" type="username" />
 					</FormField>
 				</div>
+
+				<div>
+					<Card>
+						<CardHeader>
+							<CardTitle>Account Information</CardTitle>
+
+							<CardDescription>
+								Update your account information.
+							</CardDescription>
+						</CardHeader>
+
+						<CardContent>
+							<p className="text-sm">
+								Your account details go here.
+							</p>
+						</CardContent>
+
+						<CardFooter>
+							<Button variant="secondary">Cancel</Button>
+
+							<Button>Save Changes</Button>
+						</CardFooter>
+					</Card>
+				</div>
+
+				<div className="flex gap-4">
+					<div className="space-y-4">
+						<p>Customer Information</p>
+
+						<Separator />
+
+						<p>Vehicle Information</p>
+					</div>
+
+					<Separator orientation="vertical" />
+
+					<div className="flex h-6 items-center gap-4">
+						<span>Profile</span>
+
+						<Separator orientation="vertical" />
+
+						<span>Settings</span>
+					</div>
+				</div>
+
+				<Alert
+					variant="success"
+					title="Saved successfully"
+					description="Your changes have been saved."
+				/>
+
+				<DropdownMenu>
+					<DropdownMenuTrigger className="inline-flex size-9 items-center justify-center rounded-md hover:bg-secondary">
+						<MoreHorizontal size={18} />
+					</DropdownMenuTrigger>
+
+					<DropdownMenuContent align="end">
+						<DropdownMenuLabel>Actions</DropdownMenuLabel>
+
+						<DropdownMenuSeparator />
+
+						<DropdownMenuItem>
+							<Pencil size={16} />
+							Edit
+						</DropdownMenuItem>
+
+						<DropdownMenuItem>
+							<Trash2 size={16} />
+							Delete
+						</DropdownMenuItem>
+					</DropdownMenuContent>
+				</DropdownMenu>
+
+				<Tooltip content="Delete">
+					<Button size="icon" variant="ghost">
+						<Trash2 size={16} />
+					</Button>
+				</Tooltip>
+
+				<Popover>
+					<PopoverTrigger className="rounded-md border border-border px-3 py-2 text-sm hover:bg-secondary">
+						Filters
+					</PopoverTrigger>
+
+					<PopoverContent>
+						<PopoverHeader>
+							<PopoverTitle>Filter customers</PopoverTitle>
+
+							<PopoverDescription>
+								Choose the filters you want to apply.
+							</PopoverDescription>
+						</PopoverHeader>
+
+						<div className="space-y-3">
+							<Select
+								options={[
+									{
+										label: "Active",
+										value: "active",
+									},
+									{
+										label: "Inactive",
+										value: "inactive",
+									},
+								]}
+								onChange={(value) => console.log(value)}
+							/>
+
+							<Button className="w-full">Apply Filters</Button>
+						</div>
+					</PopoverContent>
+				</Popover>
 			</div>
 		</main>
 	);
