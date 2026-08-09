@@ -1,9 +1,23 @@
+import { useState } from "react";
 import { Badge } from "./components/badge";
 import { Button } from "./components/button/button";
 import { Input } from "./components/input/input";
+import { Select, type SelectOption } from "./components/select/select";
 import { Textarea } from "./components/textarea";
 
 function App() {
+	const options: SelectOption[] = [
+		{
+			label: "Active",
+			value: "ACTIVE",
+		},
+		{
+			label: "Inactive",
+			value: "INACTIVE",
+		},
+	];
+	const [status, setStatus] = useState("ACTIVE");
+
 	return (
 		<main className="min-h-screen bg-background p-8">
 			<div className="mx-auto max-w-5xl">
@@ -71,6 +85,12 @@ function App() {
 
 					<Textarea className="resize-none" size="lg" />
 				</div>
+
+				<Select
+					options={options}
+					value={status}
+					onChange={(e) => setStatus(e)}
+				/>
 			</div>
 		</main>
 	);
