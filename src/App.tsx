@@ -4,6 +4,7 @@ import { Button } from "./components/button/button";
 import { Input } from "./components/input/input";
 import { Select, type SelectOption } from "./components/select/select";
 import { Textarea } from "./components/textarea";
+import { Checkbox } from "./components/checkbox/checkbox";
 
 function App() {
 	const options: SelectOption[] = [
@@ -17,16 +18,19 @@ function App() {
 		},
 	];
 	const [status, setStatus] = useState("ACTIVE");
+	const [accepted, setAccepted] = useState(false);
+
+	console.log(accepted);
 
 	return (
 		<main className="min-h-screen bg-background p-8">
-			<div className="mx-auto max-w-5xl">
+			<div className="mx-auto max-w-5xl space-y-8">
 				<div className="mb-8">
 					<h1 className="text-2xl font-semibold tracking-tight">
 						Veyra UI
 					</h1>
 
-					<p className="mt-1 text-sm text-muted-foreground">
+					<p className=" text-sm text-muted-foreground">
 						React component library and design system.
 					</p>
 				</div>
@@ -49,7 +53,7 @@ function App() {
 					</Button>
 				</div>
 
-				<div className="flex flex-wrap gap-3 items-center mt-8">
+				<div className="flex flex-wrap gap-3 items-center ">
 					<Badge>Default</Badge>
 
 					<Badge variant="primary">Active</Badge>
@@ -65,7 +69,7 @@ function App() {
 					<Badge variant="outline">Draft</Badge>
 				</div>
 
-				<div className="grid grid-cols-4 gap-3 items-center mt-8">
+				<div className="grid grid-cols-4 gap-3 items-center ">
 					<Input size="sm" placeholder="sm size" />
 					<Input size="md" placeholder="md size" />
 					<Input size="lg" placeholder="lg size" />
@@ -78,7 +82,7 @@ function App() {
 						autoComplete="email"
 					/>
 				</div>
-				<div className="grid grid-cols-4 gap-3 items-center mt-8">
+				<div className="grid grid-cols-4 gap-3 items-center ">
 					<Textarea className="resize-none" size="sm" />
 
 					<Textarea className="resize-none" size="md" />
@@ -91,6 +95,27 @@ function App() {
 					value={status}
 					onChange={(e) => setStatus(e)}
 				/>
+
+				<div className="flex gap-3">
+					<Checkbox label="Remember me" />
+
+					<Checkbox label="Accept terms" defaultChecked />
+
+					<Checkbox label="Disabled" disabled />
+
+					<Checkbox
+						label="Indeterminate"
+						indeterminate
+						defaultChecked
+					/>
+
+					<Checkbox
+						name="terms"
+						label="I agree to the terms"
+						checked={accepted}
+						onChange={(event) => setAccepted(event.target.checked)}
+					/>
+				</div>
 			</div>
 		</main>
 	);
