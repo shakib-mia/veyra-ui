@@ -1,5 +1,6 @@
 import { Badge } from "./components/badge";
 import { Button } from "./components/button/button";
+import { Input } from "./components/input/input";
 
 function App() {
 	return (
@@ -47,6 +48,20 @@ function App() {
 					<Badge variant="info">Processing</Badge>
 
 					<Badge variant="outline">Draft</Badge>
+				</div>
+
+				<div className="grid grid-cols-4 gap-3 items-center mt-8">
+					<Input size="sm" placeholder="sm size" />
+					<Input size="md" placeholder="md size" />
+					<Input size="lg" placeholder="lg size" />
+					<Input
+						type="email"
+						name="email"
+						placeholder="Enter email"
+						// disabled
+						required
+						autoComplete="email"
+					/>
 				</div>
 			</div>
 		</main>
