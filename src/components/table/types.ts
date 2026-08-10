@@ -70,4 +70,7 @@ export interface DataTableProps<T extends object> {
 	filterMode?: "client" | "server";
 	filterValues?: Record<string, string>;
 	onFilterChange?: (key: string, value: string) => void;
+
+	showFilterChips?: boolean;
+	filterChipsClearLabel?: string;
 }

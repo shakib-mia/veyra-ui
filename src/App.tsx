@@ -64,10 +64,14 @@ import Breadcrumb from "./components/navigation/Breadcrumb";
 import DatePicker from "./components/date-picker/DatePicker";
 import DateRangePicker from "./components/date-range-picker/DateRangePicker";
 import type { DateRange } from "react-day-picker";
+import FileUpload from "./components/file-upload/FileUpload";
+import FormDialog from "./components/form-dialog/FormDialog";
 
 function App() {
 	// const [page, setPage] = useState(1);
 	const [date, setDate] = useState<Date>();
+	const [files, setFiles] = useState<File[]>([]);
+	const [open, setOpen] = useState(false);
 
 	const options: SelectOption[] = [
 		{
@@ -171,9 +175,41 @@ function App() {
 
 	const [dateRange, setDateRange] = useState<DateRange | undefined>();
 
+	const [filterValues, setFilterValues] = useState<Record<string, string>>(
+		{},
+	);
+
+	const handleFilterChange = (key: string, value: string) => {
+		setFilterValues((prev) => ({
+			...prev,
+			[key]: value,
+		}));
+	};
+
 	return (
 		<main className="min-h-screen p-8">
 			<div className="mx-auto max-w-5xl space-y-8">
+				<Button onClick={() => setOpen(true)}>Add Customer</Button>
+
+				<FormDialog
+					open={open}
+					onOpenChange={setOpen}
+					title="Add Customer"
+					description="Create a new customer."
+					onSubmit={() => {
+						console.log("submitted");
+						setOpen(false);
+					}}
+				>
+					<div className="space-y-4">
+						<Input placeholder="Customer name" />
+
+						<Input placeholder="Email" />
+
+						<Input placeholder="Phone" />
+					</div>
+				</FormDialog>
+
 				<PageHeader
 					title="Veyra UI"
 					description="React component library and design system."
@@ -200,6 +236,10 @@ function App() {
 				<DatePicker value={date} onChange={setDate} />
 
 				<DateRangePicker value={dateRange} onChange={setDateRange} />
+
+				<div className="w-full max-w-xl">
+					<FileUpload value={files} onChange={setFiles} />
+				</div>
 
 				<div className="flex flex-wrap gap-3">
 					<Button>Save</Button>
@@ -588,6 +628,7 @@ function App() {
 						data={parts}
 						columns={columns}
 						searchable
+						showFilterChips
 						searchPlaceholder="Search"
 						filters={[
 							{
@@ -630,7 +671,6 @@ function App() {
 						data={response.data}
 						columns={columns}
 						loading={tableLoading}
-						onRowClick={(row) => console.log(row)}
 						filters={[
 							{
 								key: "status",
@@ -653,6 +693,10 @@ function App() {
 								],
 							},
 						]}
+						filterMode="server"
+						filterValues={filterValues}
+						onFilterChange={handleFilterChange}
+						showFilterChips
 						pagination={{
 							mode: "server",
 							page: response.meta.page,
@@ -660,9 +704,7 @@ function App() {
 							total: response.meta.total,
 							totalPages: response.meta.totalPages,
 							pageSizeOptions: [10, 25],
-
 							onPageChange: setPage,
-
 							onPageSizeChange: (newLimit) => {
 								setLimit(newLimit);
 								setPage(1);

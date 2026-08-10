@@ -46,7 +46,7 @@ const Dialog = ({ open, onOpenChange, children }: DialogProps) => {
 		>
 			<div
 				aria-hidden="true"
-				className="absolute inset-0 bg-slate-950/40 backdrop-blur-[2px]"
+				className="absolute inset-0 bg-slate-950/40 backdrop-blur-[2px] h-screen"
 				onMouseDown={() => onOpenChange(false)}
 			/>
 

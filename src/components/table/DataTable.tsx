@@ -5,6 +5,8 @@ import TableFilters from "./TableFilters";
 import TablePagination from "./TablePagination";
 import TableSearch from "./TableSearch";
 
+import FilterChips, { type FilterChip } from "../filter-chips/FilterChips";
+
 import type { DataTableProps } from "./types";
 
 export default function DataTable<T extends object>({
@@ -25,6 +27,9 @@ export default function DataTable<T extends object>({
 	filterMode = "client",
 	filterValues: externalFilterValues,
 	onFilterChange,
+
+	showFilterChips = false,
+	filterChipsClearLabel = "Clear all",
 }: DataTableProps<T>) {
 	/**
 	 * Client-side state
@@ -41,6 +46,9 @@ export default function DataTable<T extends object>({
 		pagination?.defaultPageSize ?? 10,
 	);
 
+	/**
+	 * Modes
+	 */
 	const isPaginated = Boolean(pagination);
 
 	const isServerPagination = pagination?.mode === "server";
@@ -50,12 +58,18 @@ export default function DataTable<T extends object>({
 	const isServerFilter = filterMode === "server";
 
 	/**
-	 * Search value
+	 * Active search
 	 */
 	const activeSearch = isServerSearch ? searchValue : clientSearch;
 
 	/**
-	 * Filter values
+	 * Active filters
+	 *
+	 * Server:
+	 * Parent owns the state.
+	 *
+	 * Client:
+	 * DataTable owns the state.
 	 */
 	const activeFilterValues = useMemo(
 		() =>
@@ -64,10 +78,9 @@ export default function DataTable<T extends object>({
 	);
 
 	/**
-	 * Client-side search + filter.
+	 * Client-side search + filter
 	 *
-	 * Server mode skips these because
-	 * backend already returns filtered data.
+	 * Server search/filter skips local filtering.
 	 */
 	const filteredData = useMemo(() => {
 		if (isServerSearch || isServerFilter) {
@@ -120,7 +133,7 @@ export default function DataTable<T extends object>({
 	]);
 
 	/**
-	 * Client-side pagination
+	 * Client pagination
 	 */
 	const clientTotal = filteredData.length;
 
@@ -129,17 +142,21 @@ export default function DataTable<T extends object>({
 		Math.ceil(clientTotal / clientPageSize),
 	);
 
+	/**
+	 * Visible data
+	 */
 	const visibleData = useMemo(() => {
 		/**
-		 * Server pagination:
-		 * backend already paginated the data.
+		 * Server pagination
+		 *
+		 * Backend already paginated.
 		 */
 		if (isServerPagination) {
 			return data;
 		}
 
 		/**
-		 * No pagination.
+		 * No pagination
 		 */
 		if (!isPaginated) {
 			return filteredData;
@@ -182,11 +199,19 @@ export default function DataTable<T extends object>({
 		: clientTotalPages;
 
 	/**
-	 * Search
+	 * Search action
 	 */
 	const handleSearchChange = (value: string) => {
 		if (isServerSearch) {
 			onSearchChange?.(value);
+
+			/**
+			 * Search should start from page 1.
+			 */
+			if (isServerPagination) {
+				pagination?.onPageChange?.(1);
+			}
+
 			return;
 		}
 
@@ -195,14 +220,33 @@ export default function DataTable<T extends object>({
 	};
 
 	/**
-	 * Filter
+	 * Filter action
+	 *
+	 * This is the important part.
 	 */
 	const handleFilterChange = (key: string, value: string) => {
+		/**
+		 * Server-side filter
+		 *
+		 * Parent owns filter state.
+		 */
 		if (isServerFilter) {
 			onFilterChange?.(key, value);
+
+			/**
+			 * Changing a filter should always
+			 * start from page 1.
+			 */
+			if (isServerPagination) {
+				pagination?.onPageChange?.(1);
+			}
+
 			return;
 		}
 
+		/**
+		 * Client-side filter
+		 */
 		setClientFilterValues((previous) => ({
 			...previous,
 			[key]: value,
@@ -212,7 +256,87 @@ export default function DataTable<T extends object>({
 	};
 
 	/**
-	 * Page
+	 * Active filter chips
+	 */
+	const activeFilterChips = useMemo<FilterChip[]>(() => {
+		if (!showFilterChips) {
+			return [];
+		}
+
+		return filters.flatMap((filter) => {
+			const key = String(filter.key);
+
+			const value = activeFilterValues[key];
+
+			/**
+			 * Empty and "all"
+			 * are inactive.
+			 */
+			if (!value || value === "all") {
+				return [];
+			}
+
+			const selectedOption = filter.options?.find(
+				(option) => option.value === value,
+			);
+
+			return [
+				{
+					key,
+					label: filter.label,
+					value,
+					valueLabel: selectedOption?.label ?? value,
+				},
+			];
+		});
+	}, [filters, activeFilterValues, showFilterChips]);
+
+	/**
+	 * Remove one filter
+	 */
+	const handleRemoveFilter = (key: string) => {
+		handleFilterChange(key, "");
+	};
+
+	/**
+	 * Clear all filters
+	 */
+	const handleClearFilters = () => {
+		/**
+		 * Server mode
+		 */
+		if (isServerFilter) {
+			filters.forEach((filter) => {
+				const key = String(filter.key);
+
+				const value = activeFilterValues[key];
+
+				if (!value || value === "all") {
+					return;
+				}
+
+				onFilterChange?.(key, "");
+			});
+
+			/**
+			 * Only reset page once.
+			 */
+			if (isServerPagination) {
+				pagination?.onPageChange?.(1);
+			}
+
+			return;
+		}
+
+		/**
+		 * Client mode
+		 */
+		setClientFilterValues({});
+		setClientPage(1);
+	};
+
+	/**
+	 * Page change
 	 */
 	const handlePageChange = (page: number) => {
 		if (isServerPagination) {
@@ -224,7 +348,7 @@ export default function DataTable<T extends object>({
 	};
 
 	/**
-	 * Page size
+	 * Page size change
 	 */
 	const handlePageSizeChange = (pageSize: number) => {
 		if (isServerPagination) {
@@ -238,8 +362,10 @@ export default function DataTable<T extends object>({
 
 	return (
 		<div className="space-y-4">
+			{/* Search + Filters */}
 			{(searchable || filters.length > 0) && (
 				<div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+					{/* Search */}
 					{searchable && (
 						<div className="w-full md:max-w-sm">
 							<TableSearch
@@ -251,6 +377,7 @@ export default function DataTable<T extends object>({
 						</div>
 					)}
 
+					{/* Filters */}
 					{filters.length > 0 && (
 						<TableFilters
 							filters={filters}
@@ -262,6 +389,17 @@ export default function DataTable<T extends object>({
 				</div>
 			)}
 
+			{/* Filter Chips */}
+			{showFilterChips && activeFilterChips.length > 0 && (
+				<FilterChips
+					filters={activeFilterChips}
+					onRemove={handleRemoveFilter}
+					onClear={handleClearFilters}
+					clearLabel={filterChipsClearLabel}
+				/>
+			)}
+
+			{/* Table */}
 			<Table
 				data={visibleData}
 				columns={columns}
@@ -270,6 +408,7 @@ export default function DataTable<T extends object>({
 				onRowClick={onRowClick}
 			/>
 
+			{/* Pagination */}
 			{isPaginated && (
 				<TablePagination
 					page={currentPage}
