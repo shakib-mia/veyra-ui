@@ -57,9 +57,11 @@ import { Avatar } from "./components/avatar/avatar";
 import { Spinner } from "./components/spinner/spinner";
 import { EmptyState } from "./components/empty-state/empty-state";
 import { Pagination } from "./components/pagination/pagination";
+import type { DataTableColumn } from "./components/table/types";
+import DataTable from "./components/table/DataTable";
 
 function App() {
-	const [page, setPage] = useState(1);
+	// const [page, setPage] = useState(1);
 
 	const options: SelectOption[] = [
 		{
@@ -74,11 +76,95 @@ function App() {
 	const [status, setStatus] = useState("ACTIVE");
 	const [accepted, setAccepted] = useState(false);
 	const [enabled, setEnabled] = useState(false);
+	const [tableLoading, setTableLoading] = useState(true);
 
-	console.log(accepted);
+	setTimeout(() => {
+		setTableLoading(false);
+	}, 5000);
+
+	type Part = {
+		id: string;
+		name: string;
+		partsNo: string;
+		brand: string;
+		quantity: number;
+		status: string;
+	};
+
+	const parts: Part[] = Array.from({ length: 47 }, (_, index) => ({
+		id: `PAR-${String(index + 1).padStart(6, "0")}`,
+		name: "Engine Oil 5W-30",
+		partsNo: String(index + 1),
+		brand: "Castrol",
+		quantity: index + 1,
+		status: index % 2 === 0 ? "NEW" : "USED",
+	}));
+
+	const columns: DataTableColumn<Part>[] = [
+		{
+			key: "id",
+			header: "ID",
+		},
+
+		{
+			key: "name",
+			header: "Name",
+		},
+
+		{
+			key: "partsNo",
+			header: "Parts No",
+		},
+
+		{
+			key: "brand",
+			header: "Brand",
+		},
+
+		{
+			key: "quantity",
+			header: "Quantity",
+		},
+
+		{
+			key: "status",
+			header: "Status",
+			render: ({ value }) => (
+				<span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
+					{String(value)}
+				</span>
+			),
+		},
+	];
+
+	// const [serverPage, setServerPage] = useState(1);
+
+	// const serverPageSize = 10;
+
+	// const serverTotal = 47;
+
+	// const serverTotalPages = Math.ceil(serverTotal / serverPageSize);
+
+	/**
+	 * Simulate backend response.
+	 */
+
+	const [page, setPage] = useState(1);
+	const [limit, setLimit] = useState(20);
+
+	const response = {
+		data: parts.slice((page - 1) * limit, page * limit),
+
+		meta: {
+			total: parts.length,
+			page,
+			limit,
+			totalPages: Math.ceil(parts.length / limit),
+		},
+	};
 
 	return (
-		<main className="min-h-screen bg-background p-8">
+		<main className="min-h-screen p-8">
 			<div className="mx-auto max-w-5xl space-y-8">
 				<div className="mb-8">
 					<h1 className="text-2xl font-semibold tracking-tight">
@@ -465,6 +551,100 @@ function App() {
 					totalPages={10}
 					onPageChange={setPage}
 				/>
+
+				{/* Client-side pagination */}
+
+				<section className="space-y-4">
+					<h2 className="text-xl font-semibold">
+						Client-side Pagination
+					</h2>
+
+					<DataTable
+						data={parts}
+						columns={columns}
+						searchable
+						searchPlaceholder="Search"
+						filters={[
+							{
+								key: "status",
+								label: "Status",
+								type: "select",
+								placeholder: "All Status",
+								options: [
+									{
+										label: "All",
+										value: "all",
+									},
+									{
+										label: "New",
+										value: "NEW",
+									},
+									{
+										label: "Used",
+										value: "USED",
+									},
+								],
+							},
+						]}
+						pagination={{
+							mode: "client",
+							defaultPageSize: 10,
+							pageSizeOptions: [10, 25, 50],
+						}}
+					/>
+				</section>
+
+				{/* Server-side pagination */}
+
+				<section className="space-y-4">
+					<h2 className="text-xl font-semibold">
+						Server-side Pagination
+					</h2>
+
+					<DataTable
+						data={response.data}
+						columns={columns}
+						loading={tableLoading}
+						onRowClick={(row) => console.log(row)}
+						filters={[
+							{
+								key: "status",
+								label: "Status",
+								type: "select",
+								placeholder: "All Status",
+								options: [
+									{
+										label: "All",
+										value: "all",
+									},
+									{
+										label: "New",
+										value: "NEW",
+									},
+									{
+										label: "Used",
+										value: "USED",
+									},
+								],
+							},
+						]}
+						pagination={{
+							mode: "server",
+							page: response.meta.page,
+							pageSize: response.meta.limit,
+							total: response.meta.total,
+							totalPages: response.meta.totalPages,
+							pageSizeOptions: [10, 25],
+
+							onPageChange: setPage,
+
+							onPageSizeChange: (newLimit) => {
+								setLimit(newLimit);
+								setPage(1);
+							},
+						}}
+					/>
+				</section>
 			</div>
 		</main>
 	);
