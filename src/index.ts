@@ -1,3 +1,5 @@
+import "./styles/index.css";
+
 export * from "./components/accordion";
 export * from "./components/alert";
 export * from "./components/avatar";

@@ -1,37 +1,30 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import dts from "vite-plugin-dts";
-import { resolve } from "node:path";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
-	plugins: [
-		react(),
-		tailwindcss(),
-
-		dts({
-			insertTypesEntry: true,
-			include: ["src"],
-			exclude: ["src/main.tsx", "src/App.tsx"],
-		}),
-	],
+	plugins: [react(), tailwindcss()],
 
 	build: {
+		emptyOutDir: false,
+
 		lib: {
-			entry: resolve(process.cwd(), "src/index.ts"),
+			entry: "src/index.ts",
 			name: "VeyraUI",
+			formats: ["es"],
 			fileName: "veyra-ui",
-			formats: ["es", "cjs"],
 		},
 
 		rollupOptions: {
-			external: ["react", "react-dom", "react/jsx-runtime"],
+			external: (id) => {
+				return (
+					id === "react" ||
+					id === "react-dom" ||
+					id === "react-select" ||
+					id.startsWith("react/") ||
+					id.startsWith("react-dom/")
+				);
+			},
 		},
-
-		cssCodeSplit: false,
-
-		sourcemap: true,
-
-		emptyOutDir: true,
 	},
 });
