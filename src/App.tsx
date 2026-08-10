@@ -59,9 +59,15 @@ import { EmptyState } from "./components/empty-state/empty-state";
 import { Pagination } from "./components/pagination/pagination";
 import type { DataTableColumn } from "./components/table/types";
 import DataTable from "./components/table/DataTable";
+import PageHeader from "./components/layout/PageHeader";
+import Breadcrumb from "./components/navigation/Breadcrumb";
+import DatePicker from "./components/date-picker/DatePicker";
+import DateRangePicker from "./components/date-range-picker/DateRangePicker";
+import type { DateRange } from "react-day-picker";
 
 function App() {
 	// const [page, setPage] = useState(1);
+	const [date, setDate] = useState<Date>();
 
 	const options: SelectOption[] = [
 		{
@@ -163,18 +169,37 @@ function App() {
 		},
 	};
 
+	const [dateRange, setDateRange] = useState<DateRange | undefined>();
+
 	return (
 		<main className="min-h-screen p-8">
 			<div className="mx-auto max-w-5xl space-y-8">
-				<div className="mb-8">
-					<h1 className="text-2xl font-semibold tracking-tight">
-						Veyra UI
-					</h1>
+				<PageHeader
+					title="Veyra UI"
+					description="React component library and design system."
+					actions={<Button>Add Part</Button>}
+				/>
 
-					<p className=" text-sm text-muted-foreground">
-						React component library and design system.
-					</p>
-				</div>
+				<Breadcrumb
+					items={[
+						{
+							label: "Vehicles",
+							href: "/vehicles",
+						},
+						{
+							label: "Toyota Corolla",
+						},
+					]}
+					renderLink={({ href, children, className }) => (
+						<a href={href} className={className}>
+							{children}
+						</a>
+					)}
+				/>
+
+				<DatePicker value={date} onChange={setDate} />
+
+				<DateRangePicker value={dateRange} onChange={setDateRange} />
 
 				<div className="flex flex-wrap gap-3">
 					<Button>Save</Button>
