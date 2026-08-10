@@ -9,8 +9,6 @@ import {
 	Button,
 	Card,
 	Checkbox,
-	DatePicker,
-	DateRangePicker,
 	Dialog,
 	DialogBody,
 	DialogContent,
@@ -115,7 +113,6 @@ export default function App() {
 	const [checked, setChecked] = useState(false);
 	const [enabled, setEnabled] = useState(true);
 
-	const [date, setDate] = useState<Date | undefined>();
 	const [files, setFiles] = useState<File[]>([]);
 
 	const [serverFilter, setServerFilter] = useState("");
@@ -210,6 +207,7 @@ export default function App() {
 								<Badge variant="secondary">Pending</Badge>
 
 								<Badge variant="outline">Archived</Badge>
+								<Badge variant="destructive">Danger</Badge>
 							</div>
 
 							<Alert>
@@ -387,7 +385,7 @@ export default function App() {
 				{/* Dates */}
 				{/* --------------------------------------------------- */}
 
-				<Section
+				{/* <Section
 					title="Date & Range"
 					description="Useful for bookings, invoices and reports."
 				>
@@ -406,7 +404,7 @@ export default function App() {
 							</div>
 						</div>
 					</Card>
-				</Section>
+				</Section> */}
 
 				{/* --------------------------------------------------- */}
 				{/* File Upload */}
