@@ -1,7 +1,6 @@
 import { X } from "lucide-react";
 import type { ReactNode } from "react";
-
-import { cn } from "../../main";
+import { cn } from "../../lib/cn";
 
 export interface FilterChip {
 	key: string;

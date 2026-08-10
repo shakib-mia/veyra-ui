@@ -6,7 +6,7 @@ import {
 	type ChangeEvent,
 	type DragEvent,
 } from "react";
-import { cn } from "../../main";
+import { cn } from "../../lib/cn";
 import FileThumbnail from "./FileThumbnail";
 
 export interface FileUploadError {

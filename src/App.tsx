@@ -1,720 +1,928 @@
-import { useState } from "react";
-import { Badge } from "./components/badge";
-import { Button } from "./components/button/button";
-import { Input } from "./components/input/input";
-import { Select, type SelectOption } from "./components/select/select";
-import { Textarea } from "./components/textarea";
-import { Checkbox } from "./components/checkbox/checkbox";
-import { Radio } from "./components/radio/radio";
-import { Switch } from "./components/switch/switch";
-import { Label } from "./components/label/label";
 import {
-	RadioGroup,
-	RadioGroupItem,
-} from "./components/radio-group/radio-group";
-import { FormField } from "./components/form-field/form-field";
-import {
+	Accordion,
+	AccordionContent,
+	AccordionItem,
+	AccordionTrigger,
+	Alert,
+	Avatar,
+	Badge,
+	Button,
 	Card,
-	CardContent,
-	CardDescription,
-	CardFooter,
-	CardHeader,
-	CardTitle,
-} from "./components/card/card";
-import { Separator } from "./components/separator/separator";
-import { Alert } from "./components/alert/alert";
-import {
+	Checkbox,
+	DatePicker,
+	DateRangePicker,
+	Dialog,
+	DialogBody,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
-} from "./components/dropdown-menu/dropdown-menu";
-import { Car, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
-import { Tooltip } from "./components/tooltip/tooltip";
-import {
-	Popover,
-	PopoverContent,
-	PopoverDescription,
-	PopoverHeader,
-	PopoverTitle,
-	PopoverTrigger,
-} from "./components/popover/popover";
-import {
+	EmptyState,
+	FileUpload,
+	FormDialog,
+	Input,
+	Label,
+	PageHeader,
+	RadioGroup,
+	RadioGroupItem,
+	Select,
+	Separator,
+	Skeleton,
+	Spinner,
+	Switch,
 	Tabs,
 	TabsContent,
 	TabsList,
 	TabsTrigger,
-} from "./components/tabs/tabs";
-import {
-	Accordion,
-	AccordionContent,
-	AccordionItem,
-	AccordionTrigger,
-} from "./components/accordion/accordion";
-import { Avatar } from "./components/avatar/avatar";
-import { Spinner } from "./components/spinner/spinner";
-import { EmptyState } from "./components/empty-state/empty-state";
-import { Pagination } from "./components/pagination/pagination";
-import type { DataTableColumn } from "./components/table/types";
-import DataTable from "./components/table/DataTable";
-import PageHeader from "./components/layout/PageHeader";
-import Breadcrumb from "./components/navigation/Breadcrumb";
-import DatePicker from "./components/date-picker/DatePicker";
-import DateRangePicker from "./components/date-range-picker/DateRangePicker";
-import type { DateRange } from "react-day-picker";
-import FileUpload from "./components/file-upload/FileUpload";
-import FormDialog from "./components/form-dialog/FormDialog";
+	Textarea,
+	Tooltip,
+} from "./index";
 
-function App() {
-	// const [page, setPage] = useState(1);
-	const [date, setDate] = useState<Date>();
+import { useState } from "react";
+import { MoreHorizontal, Plus, Search, UserPlus } from "lucide-react";
+
+import { DataTable } from "./components/table";
+
+interface Customer {
+	id: number;
+	name: string;
+	email: string;
+	phone: string;
+	status: "ACTIVE" | "INACTIVE" | "PENDING";
+	type: "Individual" | "Business";
+	joinedAt: string;
+}
+
+const customers: Customer[] = [
+	{
+		id: 1,
+		name: "Rahim Ahmed",
+		email: "rahim@example.com",
+		phone: "+880 1711-123456",
+		status: "ACTIVE",
+		type: "Individual",
+		joinedAt: "12 Aug 2026",
+	},
+	{
+		id: 2,
+		name: "Karim Motors",
+		email: "info@karimmotors.com",
+		phone: "+880 1812-456789",
+		status: "ACTIVE",
+		type: "Business",
+		joinedAt: "10 Aug 2026",
+	},
+	{
+		id: 3,
+		name: "Sabbir Hossain",
+		email: "sabbir@example.com",
+		phone: "+880 1912-987654",
+		status: "PENDING",
+		type: "Individual",
+		joinedAt: "08 Aug 2026",
+	},
+	{
+		id: 4,
+		name: "Nusrat Jahan",
+		email: "nusrat@example.com",
+		phone: "+880 1612-456123",
+		status: "ACTIVE",
+		type: "Individual",
+		joinedAt: "05 Aug 2026",
+	},
+	{
+		id: 5,
+		name: "ABC Auto Care",
+		email: "contact@abcauto.com",
+		phone: "+880 1512-654321",
+		status: "INACTIVE",
+		type: "Business",
+		joinedAt: "01 Aug 2026",
+	},
+];
+
+export default function App() {
+	const [dialogOpen, setDialogOpen] = useState(false);
+	const [formDialogOpen, setFormDialogOpen] = useState(false);
+
+	const [checked, setChecked] = useState(false);
+	const [enabled, setEnabled] = useState(true);
+
+	const [date, setDate] = useState<Date | undefined>();
 	const [files, setFiles] = useState<File[]>([]);
-	const [open, setOpen] = useState(false);
 
-	const options: SelectOption[] = [
-		{
-			label: "Active",
-			value: "ACTIVE",
-		},
-		{
-			label: "Inactive",
-			value: "INACTIVE",
-		},
-	];
-	const [status, setStatus] = useState("ACTIVE");
-	const [accepted, setAccepted] = useState(false);
-	const [enabled, setEnabled] = useState(false);
-	const [tableLoading, setTableLoading] = useState(true);
+	const [serverFilter, setServerFilter] = useState("");
+	const [formLoading, setFormLoading] = useState(false);
 
-	setTimeout(() => {
-		setTableLoading(false);
-	}, 5000);
+	const handleFormSubmit = () => {
+		setFormLoading(true);
 
-	type Part = {
-		id: string;
-		name: string;
-		partsNo: string;
-		brand: string;
-		quantity: number;
-		status: string;
-	};
-
-	const parts: Part[] = Array.from({ length: 47 }, (_, index) => ({
-		id: `PAR-${String(index + 1).padStart(6, "0")}`,
-		name: "Engine Oil 5W-30",
-		partsNo: String(index + 1),
-		brand: "Castrol",
-		quantity: index + 1,
-		status: index % 2 === 0 ? "NEW" : "USED",
-	}));
-
-	const columns: DataTableColumn<Part>[] = [
-		{
-			key: "id",
-			header: "ID",
-		},
-
-		{
-			key: "name",
-			header: "Name",
-		},
-
-		{
-			key: "partsNo",
-			header: "Parts No",
-		},
-
-		{
-			key: "brand",
-			header: "Brand",
-		},
-
-		{
-			key: "quantity",
-			header: "Quantity",
-		},
-
-		{
-			key: "status",
-			header: "Status",
-			render: ({ value }) => (
-				<span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
-					{String(value)}
-				</span>
-			),
-		},
-	];
-
-	// const [serverPage, setServerPage] = useState(1);
-
-	// const serverPageSize = 10;
-
-	// const serverTotal = 47;
-
-	// const serverTotalPages = Math.ceil(serverTotal / serverPageSize);
-
-	/**
-	 * Simulate backend response.
-	 */
-
-	const [page, setPage] = useState(1);
-	const [limit, setLimit] = useState(20);
-
-	const response = {
-		data: parts.slice((page - 1) * limit, page * limit),
-
-		meta: {
-			total: parts.length,
-			page,
-			limit,
-			totalPages: Math.ceil(parts.length / limit),
-		},
-	};
-
-	const [dateRange, setDateRange] = useState<DateRange | undefined>();
-
-	const [filterValues, setFilterValues] = useState<Record<string, string>>(
-		{},
-	);
-
-	const handleFilterChange = (key: string, value: string) => {
-		setFilterValues((prev) => ({
-			...prev,
-			[key]: value,
-		}));
+		window.setTimeout(() => {
+			setFormLoading(false);
+			setFormDialogOpen(false);
+		}, 1200);
 	};
 
 	return (
-		<main className="min-h-screen p-8">
-			<div className="mx-auto max-w-5xl space-y-8">
-				<Button onClick={() => setOpen(true)}>Add Customer</Button>
+		<div className="min-h-screen bg-background text-foreground">
+			{/* ------------------------------------------------------- */}
+			{/* Header */}
+			{/* ------------------------------------------------------- */}
 
-				<FormDialog
-					open={open}
-					onOpenChange={setOpen}
-					title="Add Customer"
-					description="Create a new customer."
-					onSubmit={() => {
-						console.log("submitted");
-						setOpen(false);
-					}}
-				>
-					<div className="space-y-4">
-						<Input placeholder="Customer name" />
+			<header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
+				<div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
+					<div>
+						<h1 className="text-xl font-bold tracking-tight">
+							Veyra UI
+						</h1>
 
-						<Input placeholder="Email" />
-
-						<Input placeholder="Phone" />
+						<p className="text-xs text-muted-foreground">
+							Reusable React Component Library
+						</p>
 					</div>
-				</FormDialog>
+
+					<div className="flex items-center gap-3">
+						<Badge>Development</Badge>
+
+						<Avatar fallback="SM" />
+					</div>
+				</div>
+			</header>
+
+			<main className="mx-auto max-w-7xl space-y-12 px-6 py-10">
+				{/* --------------------------------------------------- */}
+				{/* Overview */}
+				{/* --------------------------------------------------- */}
 
 				<PageHeader
-					title="Veyra UI"
-					description="React component library and design system."
-					actions={<Button>Add Part</Button>}
+					title="Component Playground"
+					description="Practical examples of the Veyra UI component library."
 				/>
 
-				<Breadcrumb
-					items={[
-						{
-							label: "Vehicles",
-							href: "/vehicles",
-						},
-						{
-							label: "Toyota Corolla",
-						},
-					]}
-					renderLink={({ href, children, className }) => (
-						<a href={href} className={className}>
-							{children}
-						</a>
-					)}
-				/>
+				{/* --------------------------------------------------- */}
+				{/* Buttons */}
+				{/* --------------------------------------------------- */}
 
-				<DatePicker value={date} onChange={setDate} />
-
-				<DateRangePicker value={dateRange} onChange={setDateRange} />
-
-				<div className="w-full max-w-xl">
-					<FileUpload value={files} onChange={setFiles} />
-				</div>
-
-				<div className="flex flex-wrap gap-3">
-					<Button>Save</Button>
-
-					<Button variant="secondary">Cancel</Button>
-
-					<Button variant="destructive">Delete</Button>
-
-					<Button variant="outline">Edit</Button>
-
-					<Button variant="outline-destructive">Delete</Button>
-
-					<Button variant="ghost">More</Button>
-
-					<Button as="a" href="#" variant="link">
-						Link
-					</Button>
-				</div>
-
-				<div className="flex flex-wrap gap-3 items-center ">
-					<Badge>Default</Badge>
-
-					<Badge variant="primary">Active</Badge>
-
-					<Badge variant="success">Completed</Badge>
-
-					<Badge variant="warning">Pending</Badge>
-
-					<Badge variant="danger">Cancelled</Badge>
-
-					<Badge variant="info">Processing</Badge>
-
-					<Badge variant="outline">Draft</Badge>
-				</div>
-
-				<div className="grid grid-cols-4 gap-3 items-center ">
-					<Input size="sm" placeholder="sm size" />
-					<Input size="md" placeholder="md size" />
-					<Input size="lg" placeholder="lg size" />
-					<Input
-						type="email"
-						name="email"
-						placeholder="Enter email"
-						// disabled
-						required
-						autoComplete="email"
-					/>
-				</div>
-				<div className="grid grid-cols-4 gap-3 items-center ">
-					<Textarea className="resize-none" size="sm" />
-
-					<Textarea className="resize-none" size="md" />
-
-					<Textarea className="resize-none" size="lg" />
-				</div>
-
-				<Select
-					options={options}
-					value={status}
-					onChange={(e) => setStatus(e)}
-				/>
-
-				<div className="flex gap-3">
-					<Checkbox label="Remember me" />
-
-					<Checkbox label="Accept terms" defaultChecked />
-
-					<Checkbox label="Disabled" disabled />
-
-					<Checkbox
-						label="Indeterminate"
-						indeterminate
-						defaultChecked
-					/>
-
-					<Checkbox
-						name="terms"
-						label="I agree to the terms"
-						checked={accepted}
-						onChange={(event) => setAccepted(event.target.checked)}
-					/>
-				</div>
-
-				<div className="flex flex-col gap-3">
-					<Radio
-						name="status"
-						value="active"
-						label="Active"
-						defaultChecked
-					/>
-
-					<Radio name="status" value="inactive" label="Inactive" />
-
-					<Radio
-						name="status"
-						value="disabled"
-						label="Disabled"
-						disabled
-					/>
-				</div>
-				<Switch
-					label="Active"
-					checked={enabled}
-					onChange={(event) => setEnabled(event.target.checked)}
-				/>
-
-				<div className="space-y-2">
-					<Label htmlFor="email" required>
-						Email Address
-					</Label>
-
-					<Input id="email" type="email" placeholder="Enter email" />
-				</div>
-
-				<div className="max-w-5xl space-y-8">
-					<div>
-						<h2 className="text-lg font-semibold">Status</h2>
-
-						<p className="mt-1 text-sm text-muted-foreground">
-							Select the current status.
-						</p>
-					</div>
-
-					<RadioGroup
-						value={status}
-						onValueChange={setStatus}
-						name="status"
-					>
-						<RadioGroupItem
-							value="active"
-							label="Active"
-							description="The item is currently active."
-						/>
-
-						<RadioGroupItem
-							value="inactive"
-							label="Inactive"
-							description="The item is currently inactive."
-						/>
-
-						<RadioGroupItem
-							value="archived"
-							label="Archived"
-							description="This item is no longer active."
-						/>
-
-						<RadioGroupItem
-							value="disabled"
-							label="Disabled option"
-							description="This option cannot be selected."
-							disabled
-						/>
-					</RadioGroup>
-
-					<div className="rounded-lg border border-border bg-card p-4">
-						<p className="text-sm text-muted-foreground">
-							Selected value
-						</p>
-
-						<p className="mt-1 font-medium">{status}</p>
-					</div>
-				</div>
-
-				<div>
-					<RadioGroup defaultValue="active">
-						<RadioGroupItem value="active" label="Active" />
-						<RadioGroupItem value="inactive" label="Inactive" />
-					</RadioGroup>
-				</div>
-
-				<div>
-					<FormField
-						label="Username"
-						htmlFor="username"
-						required
-						error="Please enter a valid username."
-					>
-						<Input id="username" type="username" />
-					</FormField>
-				</div>
-
-				<div>
+				<Section
+					title="Buttons"
+					description="Actions, variants and loading states."
+				>
 					<Card>
-						<CardHeader>
-							<CardTitle>Account Information</CardTitle>
+						<div className="flex flex-wrap items-center gap-3 p-6">
+							<Button>
+								<Plus size={16} />
+								Create
+							</Button>
 
-							<CardDescription>
-								Update your account information.
-							</CardDescription>
-						</CardHeader>
+							<Button variant="secondary">Secondary</Button>
 
-						<CardContent>
-							<p className="text-sm">
-								Your account details go here.
-							</p>
-						</CardContent>
+							<Button variant="outline">Outline</Button>
 
-						<CardFooter>
-							<Button variant="secondary">Cancel</Button>
+							<Button variant="ghost">Ghost</Button>
 
-							<Button>Save Changes</Button>
-						</CardFooter>
+							<Button disabled>Disabled</Button>
+
+							<Button loading>Saving...</Button>
+						</div>
 					</Card>
-				</div>
+				</Section>
 
-				<div className="flex gap-4">
-					<div className="space-y-4">
-						<p>Customer Information</p>
+				{/* --------------------------------------------------- */}
+				{/* Feedback */}
+				{/* --------------------------------------------------- */}
 
-						<Separator />
+				<Section
+					title="Feedback & States"
+					description="Communicate status, progress and empty states."
+				>
+					<Card>
+						<div className="space-y-6 p-6">
+							<div className="flex flex-wrap gap-2">
+								<Badge>Active</Badge>
 
-						<p>Vehicle Information</p>
-					</div>
+								<Badge variant="secondary">Pending</Badge>
 
-					<Separator orientation="vertical" />
+								<Badge variant="outline">Archived</Badge>
+							</div>
 
-					<div className="flex h-6 items-center gap-4">
-						<span>Profile</span>
+							<Alert>
+								Your profile has been updated successfully.
+							</Alert>
 
-						<Separator orientation="vertical" />
+							<div className="flex items-center gap-6">
+								<div className="flex items-center gap-2">
+									<Spinner />
+									<span className="text-sm">
+										Loading data...
+									</span>
+								</div>
 
-						<span>Settings</span>
-					</div>
-				</div>
+								<Skeleton className="h-5 w-40" />
 
-				<Alert
-					variant="success"
-					title="Saved successfully"
-					description="Your changes have been saved."
-				/>
+								<Skeleton className="h-5 w-24" />
+							</div>
+						</div>
+					</Card>
+				</Section>
 
-				<DropdownMenu>
-					<DropdownMenuTrigger className="inline-flex size-9 items-center justify-center rounded-md hover:bg-secondary">
-						<MoreHorizontal size={18} />
-					</DropdownMenuTrigger>
+				{/* --------------------------------------------------- */}
+				{/* Form Controls */}
+				{/* --------------------------------------------------- */}
 
-					<DropdownMenuContent align="end">
-						<DropdownMenuLabel>Actions</DropdownMenuLabel>
+				<Section
+					title="Form Controls"
+					description="Common controls used in application forms."
+				>
+					<Card>
+						<div className="grid gap-6 p-6 md:grid-cols-2">
+							<div className="space-y-2">
+								<Label htmlFor="customer-name">
+									Customer Name
+								</Label>
 
-						<DropdownMenuSeparator />
+								<Input
+									id="customer-name"
+									placeholder="Enter customer name"
+								/>
+							</div>
 
-						<DropdownMenuItem>
-							<Pencil size={16} />
-							Edit
-						</DropdownMenuItem>
+							<div className="space-y-2">
+								<Label htmlFor="customer-email">Email</Label>
 
-						<DropdownMenuItem>
-							<Trash2 size={16} />
-							Delete
-						</DropdownMenuItem>
-					</DropdownMenuContent>
-				</DropdownMenu>
+								<Input
+									id="customer-email"
+									type="email"
+									placeholder="customer@example.com"
+								/>
+							</div>
 
-				<Tooltip content="Delete">
-					<Button size="icon" variant="ghost">
-						<Trash2 size={16} />
-					</Button>
-				</Tooltip>
+							<div className="space-y-2">
+								<Label htmlFor="customer-phone">Phone</Label>
 
-				<Popover>
-					<PopoverTrigger className="rounded-md border border-border px-3 py-2 text-sm hover:bg-secondary">
-						Filters
-					</PopoverTrigger>
+								<Input
+									id="customer-phone"
+									placeholder="+880 1XXXXXXXXX"
+								/>
+							</div>
 
-					<PopoverContent>
-						<PopoverHeader>
-							<PopoverTitle>Filter customers</PopoverTitle>
+							<div className="space-y-2">
+								<Label>Customer Type</Label>
 
-							<PopoverDescription>
-								Choose the filters you want to apply.
-							</PopoverDescription>
-						</PopoverHeader>
+								<Select
+									options={[
+										{
+											label: "Individual",
+											value: "individual",
+										},
+										{
+											label: "Business",
+											value: "business",
+										},
+									]}
+									placeholder="Select customer type"
+								/>
+							</div>
 
-						<div className="space-y-3">
+							<div className="space-y-2 md:col-span-2">
+								<Label htmlFor="customer-notes">Notes</Label>
+
+								<Textarea
+									id="customer-notes"
+									placeholder="Additional customer information..."
+								/>
+							</div>
+						</div>
+					</Card>
+				</Section>
+
+				{/* --------------------------------------------------- */}
+				{/* Selection */}
+				{/* --------------------------------------------------- */}
+
+				<Section
+					title="Selection Controls"
+					description="Checkbox, switch and radio group examples."
+				>
+					<Card>
+						<div className="space-y-6 p-6">
+							<div className="flex items-center gap-3">
+								<Checkbox
+									checked={checked}
+									onCheckedChange={setChecked}
+								/>
+
+								<div>
+									<p className="text-sm font-medium">
+										Accept terms and conditions
+									</p>
+
+									<p className="text-xs text-muted-foreground">
+										Required before submitting.
+									</p>
+								</div>
+							</div>
+
+							<Separator />
+
+							<div className="flex items-center justify-between">
+								<div>
+									<p className="text-sm font-medium">
+										Email notifications
+									</p>
+
+									<p className="text-xs text-muted-foreground">
+										Receive account notifications.
+									</p>
+								</div>
+
+								<Switch
+									checked={enabled}
+									onCheckedChange={setEnabled}
+								/>
+							</div>
+
+							<Separator />
+
+							<div className="space-y-3">
+								<Label>Preferred contact method</Label>
+
+								<RadioGroup
+									name="plan"
+									defaultValue="pro"
+									onValueChange={(value) => {
+										console.log("Selected:", value);
+									}}
+								>
+									<RadioGroupItem
+										value="free"
+										label="Free"
+										description="Basic features for personal use."
+									/>
+
+									<RadioGroupItem
+										value="pro"
+										label="Pro"
+										description="Advanced features for professional users."
+									/>
+
+									<RadioGroupItem
+										value="enterprise"
+										label="Enterprise"
+										description="For larger teams and organizations."
+									/>
+								</RadioGroup>
+							</div>
+						</div>
+					</Card>
+				</Section>
+
+				{/* --------------------------------------------------- */}
+				{/* Dates */}
+				{/* --------------------------------------------------- */}
+
+				<Section
+					title="Date & Range"
+					description="Useful for bookings, invoices and reports."
+				>
+					<Card>
+						<div className="grid gap-6 p-6 md:grid-cols-2">
+							<div className="space-y-2">
+								<Label>Booking Date</Label>
+
+								<DatePicker value={date} onChange={setDate} />
+							</div>
+
+							<div className="space-y-2">
+								<Label>Report Period</Label>
+
+								<DateRangePicker />
+							</div>
+						</div>
+					</Card>
+				</Section>
+
+				{/* --------------------------------------------------- */}
+				{/* File Upload */}
+				{/* --------------------------------------------------- */}
+
+				<Section
+					title="File Upload"
+					description="Upload documents, images and attachments."
+				>
+					<Card>
+						<div className="p-6">
+							<FileUpload
+								value={files}
+								onChange={setFiles}
+								multiple
+								maxFiles={5}
+								accept="image/*,.pdf"
+								title="Upload customer documents"
+								description="PNG, JPG or PDF up to your configured limit."
+							/>
+						</div>
+					</Card>
+				</Section>
+
+				{/* --------------------------------------------------- */}
+				{/* DataTable */}
+				{/* --------------------------------------------------- */}
+
+				<Section
+					title="Data Table"
+					description="A realistic customer management table with search, filters, chips, actions and pagination."
+				>
+					<Card>
+						<div className="p-6">
+							<DataTable<Customer>
+								data={customers}
+								columns={[
+									{
+										key: "customer",
+										header: "Customer",
+										render: ({ row }) => (
+											<div className="flex items-center gap-3">
+												<Avatar
+													fallback={row.name
+														.split(" ")
+														.map((name) => name[0])
+														.join("")
+														.slice(0, 2)}
+												/>
+
+												<div>
+													<p className="font-medium">
+														{row.name}
+													</p>
+
+													<p className="text-xs text-muted-foreground">
+														{row.email}
+													</p>
+												</div>
+											</div>
+										),
+									},
+
+									{
+										key: "phone",
+										header: "Phone",
+										accessor: (row) => row.phone,
+									},
+
+									{
+										key: "type",
+										header: "Type",
+										accessor: (row) => row.type,
+									},
+
+									{
+										key: "status",
+										header: "Status",
+										render: ({ row }) => (
+											<Badge
+												variant={
+													row.status === "ACTIVE"
+														? "default"
+														: row.status ===
+															  "PENDING"
+															? "secondary"
+															: "outline"
+												}
+											>
+												{row.status}
+											</Badge>
+										),
+									},
+
+									{
+										key: "joinedAt",
+										header: "Joined",
+										accessor: (row) => row.joinedAt,
+									},
+
+									{
+										key: "actions",
+										header: "",
+										className: "w-12",
+										render: ({ row }) => (
+											<DropdownMenu>
+												<DropdownMenuTrigger className="inline-flex size-8 items-center justify-center rounded-md hover:bg-secondary">
+													<MoreHorizontal size={18} />
+												</DropdownMenuTrigger>
+
+												<DropdownMenuContent align="end">
+													<DropdownMenuLabel>
+														Actions
+													</DropdownMenuLabel>
+
+													<DropdownMenuItem
+														onClick={() =>
+															console.log(
+																"View",
+																row,
+															)
+														}
+													>
+														View customer
+													</DropdownMenuItem>
+
+													<DropdownMenuItem
+														onClick={() =>
+															console.log(
+																"Edit",
+																row,
+															)
+														}
+													>
+														Edit customer
+													</DropdownMenuItem>
+
+													<DropdownMenuSeparator />
+
+													<DropdownMenuItem
+														onClick={() =>
+															console.log(
+																"Delete",
+																row.id,
+															)
+														}
+													>
+														Delete
+													</DropdownMenuItem>
+												</DropdownMenuContent>
+											</DropdownMenu>
+										),
+									},
+								]}
+								searchable
+								searchPlaceholder="Search customers..."
+								filters={[
+									{
+										key: "status",
+										label: "Status",
+										type: "select",
+										placeholder: "All Status",
+										options: [
+											{
+												label: "All",
+												value: "all",
+											},
+											{
+												label: "Active",
+												value: "ACTIVE",
+											},
+											{
+												label: "Pending",
+												value: "PENDING",
+											},
+											{
+												label: "Inactive",
+												value: "INACTIVE",
+											},
+										],
+									},
+								]}
+								filterValues={{
+									status: serverFilter,
+								}}
+								onFilterChange={(_, value) =>
+									setServerFilter(value)
+								}
+								showFilterChips
+								pagination={{
+									mode: "client",
+									defaultPageSize: 5,
+									pageSizeOptions: [5, 10],
+								}}
+							/>
+						</div>
+					</Card>
+				</Section>
+
+				{/* --------------------------------------------------- */}
+				{/* Dialog */}
+				{/* --------------------------------------------------- */}
+
+				<Section
+					title="Dialog"
+					description="Use dialogs for confirmations and focused interactions."
+				>
+					<Card>
+						<div className="flex flex-wrap gap-3 p-6">
+							<Button onClick={() => setDialogOpen(true)}>
+								Open Dialog
+							</Button>
+
+							<Button
+								variant="outline"
+								onClick={() => setFormDialogOpen(true)}
+							>
+								<UserPlus size={16} />
+								Add Customer
+							</Button>
+						</div>
+					</Card>
+
+					<Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+						<DialogContent onClose={() => setDialogOpen(false)}>
+							<DialogHeader>
+								<DialogTitle>Delete Customer</DialogTitle>
+
+								<DialogDescription>
+									This action cannot be undone.
+								</DialogDescription>
+							</DialogHeader>
+
+							<DialogBody>
+								<p className="text-sm text-muted-foreground">
+									Are you sure you want to delete this
+									customer?
+								</p>
+							</DialogBody>
+
+							<DialogFooter>
+								<Button
+									variant="outline"
+									onClick={() => setDialogOpen(false)}
+								>
+									Cancel
+								</Button>
+
+								<Button onClick={() => setDialogOpen(false)}>
+									Delete Customer
+								</Button>
+							</DialogFooter>
+						</DialogContent>
+					</Dialog>
+				</Section>
+
+				{/* --------------------------------------------------- */}
+				{/* Form Dialog */}
+				{/* --------------------------------------------------- */}
+
+				<FormDialog
+					open={formDialogOpen}
+					onOpenChange={setFormDialogOpen}
+					title="Add Customer"
+					description="Create a new customer record."
+					submitLabel="Create Customer"
+					cancelLabel="Cancel"
+					loading={formLoading}
+					onSubmit={handleFormSubmit}
+				>
+					<div className="grid gap-5 md:grid-cols-2">
+						<div className="space-y-2">
+							<Label>Customer Name</Label>
+
+							<Input placeholder="John Doe" />
+						</div>
+
+						<div className="space-y-2">
+							<Label>Email</Label>
+
+							<Input
+								type="email"
+								placeholder="john@example.com"
+							/>
+						</div>
+
+						<div className="space-y-2">
+							<Label>Phone</Label>
+
+							<Input placeholder="+880 1XXXXXXXXX" />
+						</div>
+
+						<div className="space-y-2">
+							<Label>Type</Label>
+
 							<Select
 								options={[
 									{
-										label: "Active",
-										value: "active",
+										label: "Individual",
+										value: "individual",
 									},
 									{
-										label: "Inactive",
-										value: "inactive",
+										label: "Business",
+										value: "business",
 									},
 								]}
-								onChange={(value) => console.log(value)}
+								placeholder="Select type"
 							/>
-
-							<Button className="w-full">Apply Filters</Button>
 						</div>
-					</PopoverContent>
-				</Popover>
 
-				<Tabs defaultValue="overview">
-					<TabsList>
-						<TabsTrigger value="overview">Overview</TabsTrigger>
+						<div className="space-y-2 md:col-span-2">
+							<Label>Notes</Label>
 
-						<TabsTrigger value="vehicles">Vehicles</TabsTrigger>
+							<Textarea placeholder="Customer notes..." />
+						</div>
+					</div>
+				</FormDialog>
 
-						<TabsTrigger value="work-orders">
-							Work Orders
-						</TabsTrigger>
+				{/* --------------------------------------------------- */}
+				{/* Tabs */}
+				{/* --------------------------------------------------- */}
 
-						<TabsTrigger value="invoices">Invoices</TabsTrigger>
-					</TabsList>
+				<Section
+					title="Tabs"
+					description="Organize related content into sections."
+				>
+					<Card>
+						<div className="p-6">
+							<Tabs defaultValue="overview">
+								<TabsList>
+									<TabsTrigger value="overview">
+										Overview
+									</TabsTrigger>
 
-					<TabsContent value="overview">
-						<Card>
-							<CardContent>Customer overview</CardContent>
-						</Card>
-					</TabsContent>
-				</Tabs>
+									<TabsTrigger value="activity">
+										Activity
+									</TabsTrigger>
 
-				<Accordion defaultValue="vehicle">
-					<AccordionItem value="vehicle">
-						<AccordionTrigger value="vehicle">
-							Vehicle Information
-						</AccordionTrigger>
+									<TabsTrigger value="settings">
+										Settings
+									</TabsTrigger>
+								</TabsList>
 
-						<AccordionContent value="vehicle">
-							<div className="grid grid-cols-2 gap-4">
-								<div>
-									<p className="text-xs text-muted-foreground">
-										Registration No.
-									</p>
+								<TabsContent value="overview">
+									<div className="rounded-lg border border-border p-5">
+										<h3 className="font-medium">
+											Customer Overview
+										</h3>
 
-									<p className="font-medium">DHA-123456</p>
-								</div>
+										<p className="mt-1 text-sm text-muted-foreground">
+											General information and statistics.
+										</p>
+									</div>
+								</TabsContent>
 
-								<div>
-									<p className="text-xs text-muted-foreground">
-										Model
-									</p>
+								<TabsContent value="activity">
+									<div className="rounded-lg border border-border p-5">
+										<h3 className="font-medium">
+											Recent Activity
+										</h3>
 
-									<p className="font-medium">Toyota Axio</p>
-								</div>
-							</div>
-						</AccordionContent>
-					</AccordionItem>
+										<p className="mt-1 text-sm text-muted-foreground">
+											Recent customer interactions.
+										</p>
+									</div>
+								</TabsContent>
 
-					<AccordionItem value="customer">
-						<AccordionTrigger value="customer">
-							Customer Information
-						</AccordionTrigger>
+								<TabsContent value="settings">
+									<div className="rounded-lg border border-border p-5">
+										<h3 className="font-medium">
+											Customer Settings
+										</h3>
 
-						<AccordionContent value="customer">
-							Customer details here...
-						</AccordionContent>
-					</AccordionItem>
-				</Accordion>
-				<div className="-space-x-4 flex items-center">
-					<Avatar size="sm" fallback="SM" />
-					<Avatar size="md" fallback="SM" />
-					<Avatar size="lg" fallback="SM" />
-					<Avatar size="xl" fallback="SM" />
-				</div>
+										<p className="mt-1 text-sm text-muted-foreground">
+											Manage customer preferences.
+										</p>
+									</div>
+								</TabsContent>
+							</Tabs>
+						</div>
+					</Card>
+				</Section>
 
-				<Spinner size="sm" />
-				<Spinner size="md" />
-				<Spinner size="lg" />
-				<Spinner size="xl" />
+				{/* --------------------------------------------------- */}
+				{/* Accordion */}
+				{/* --------------------------------------------------- */}
 
-				<div className="rounded-xl border border-border bg-card">
-					<EmptyState
-						icon={<Car size={22} />}
-						title="No vehicles yet"
-						description="Add your first vehicle to get started."
-						action={<Button>Add Vehicle</Button>}
-					/>
-				</div>
+				<Section
+					title="Accordion"
+					description="Expandable sections for FAQs and grouped information."
+				>
+					<Accordion defaultValue="general">
+						<AccordionItem value="general">
+							<AccordionTrigger value="general">
+								What is Veyra UI?
+							</AccordionTrigger>
 
-				<Pagination
-					page={page}
-					totalPages={10}
-					onPageChange={setPage}
-				/>
+							<AccordionContent value="general">
+								Veyra UI is a reusable React component library
+								designed for scalable application interfaces.
+							</AccordionContent>
+						</AccordionItem>
 
-				{/* Client-side pagination */}
+						<AccordionItem value="typescript">
+							<AccordionTrigger value="typescript">
+								Is it TypeScript friendly?
+							</AccordionTrigger>
 
-				<section className="space-y-4">
-					<h2 className="text-xl font-semibold">
-						Client-side Pagination
-					</h2>
+							<AccordionContent value="typescript">
+								Yes. Components are designed with strict
+								TypeScript support.
+							</AccordionContent>
+						</AccordionItem>
 
-					<DataTable
-						data={parts}
-						columns={columns}
-						searchable
-						showFilterChips
-						searchPlaceholder="Search"
-						filters={[
-							{
-								key: "status",
-								label: "Status",
-								type: "select",
-								placeholder: "All Status",
-								options: [
-									{
-										label: "All",
-										value: "all",
-									},
-									{
-										label: "New",
-										value: "NEW",
-									},
-									{
-										label: "Used",
-										value: "USED",
-									},
-								],
-							},
-						]}
-						pagination={{
-							mode: "client",
-							defaultPageSize: 10,
-							pageSizeOptions: [10, 25, 50],
-						}}
-					/>
-				</section>
+						<AccordionItem value="projects">
+							<AccordionTrigger value="projects">
+								Can it be used in different projects?
+							</AccordionTrigger>
 
-				{/* Server-side pagination */}
+							<AccordionContent value="projects">
+								Yes. The library is designed to be reusable
+								across React applications.
+							</AccordionContent>
+						</AccordionItem>
+					</Accordion>
+				</Section>
 
-				<section className="space-y-4">
-					<h2 className="text-xl font-semibold">
-						Server-side Pagination
-					</h2>
+				{/* --------------------------------------------------- */}
+				{/* Dropdown & Tooltip */}
+				{/* --------------------------------------------------- */}
 
-					<DataTable
-						data={response.data}
-						columns={columns}
-						loading={tableLoading}
-						filters={[
-							{
-								key: "status",
-								label: "Status",
-								type: "select",
-								placeholder: "All Status",
-								options: [
-									{
-										label: "All",
-										value: "all",
-									},
-									{
-										label: "New",
-										value: "NEW",
-									},
-									{
-										label: "Used",
-										value: "USED",
-									},
-								],
-							},
-						]}
-						filterMode="server"
-						filterValues={filterValues}
-						onFilterChange={handleFilterChange}
-						showFilterChips
-						pagination={{
-							mode: "server",
-							page: response.meta.page,
-							pageSize: response.meta.limit,
-							total: response.meta.total,
-							totalPages: response.meta.totalPages,
-							pageSizeOptions: [10, 25],
-							onPageChange: setPage,
-							onPageSizeChange: (newLimit) => {
-								setLimit(newLimit);
-								setPage(1);
-							},
-						}}
-					/>
-				</section>
-			</div>
-		</main>
+				<Section
+					title="Dropdown & Tooltip"
+					description="Compact contextual actions and additional information."
+				>
+					<Card>
+						<div className="flex flex-wrap items-center gap-4 p-6">
+							<DropdownMenu>
+								<DropdownMenuTrigger className="inline-flex items-center rounded-md border border-border px-4 py-2 text-sm hover:bg-secondary">
+									Account Actions
+								</DropdownMenuTrigger>
+
+								<DropdownMenuContent>
+									<DropdownMenuLabel>
+										My Account
+									</DropdownMenuLabel>
+
+									<DropdownMenuItem>
+										View Profile
+									</DropdownMenuItem>
+
+									<DropdownMenuItem>
+										Edit Profile
+									</DropdownMenuItem>
+
+									<DropdownMenuSeparator />
+
+									<DropdownMenuItem>
+										Sign Out
+									</DropdownMenuItem>
+								</DropdownMenuContent>
+							</DropdownMenu>
+
+							<Tooltip content="Search customers">
+								<Button variant="outline">
+									<Search size={16} />
+									Search
+								</Button>
+							</Tooltip>
+						</div>
+					</Card>
+				</Section>
+
+				{/* --------------------------------------------------- */}
+				{/* Empty State */}
+				{/* --------------------------------------------------- */}
+
+				<Section
+					title="Empty State"
+					description="Useful when a collection has no data."
+				>
+					<Card>
+						<div className="p-6">
+							<EmptyState
+								title="No vehicles found"
+								description="There are no vehicles available for this organization yet."
+							/>
+						</div>
+					</Card>
+				</Section>
+
+				{/* Footer */}
+				<footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
+					Veyra UI · Reusable React Component Library
+				</footer>
+			</main>
+		</div>
 	);
 }
 
-export default App;
+interface SectionProps {
+	title: string;
+	description: string;
+	children: React.ReactNode;
+}
+
+function Section({ title, description, children }: SectionProps) {
+	return (
+		<section className="space-y-4">
+			<div>
+				<h2 className="text-lg font-semibold">{title}</h2>
+
+				<p className="text-sm text-muted-foreground">{description}</p>
+			</div>
+
+			{children}
+		</section>
+	);
+}

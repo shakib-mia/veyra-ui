@@ -4,7 +4,7 @@ import { useState } from "react";
 import { DayPicker } from "react-day-picker";
 
 import "react-day-picker/style.css";
-import { cn } from "../../main";
+import { cn } from "../../lib/cn";
 
 interface DatePickerProps {
 	value?: Date;

@@ -1,4 +1,9 @@
-import { forwardRef, type InputHTMLAttributes, type ReactNode } from "react";
+import {
+	forwardRef,
+	type ChangeEvent,
+	type InputHTMLAttributes,
+	type ReactNode,
+} from "react";
 import type { VariantProps } from "class-variance-authority";
 
 import { cn } from "../../lib/cn";
@@ -6,14 +11,31 @@ import { switchVariants } from "./switch.variants";
 
 export interface SwitchProps
 	extends
-		Omit<InputHTMLAttributes<HTMLInputElement>, "size" | "type">,
+		Omit<
+			InputHTMLAttributes<HTMLInputElement>,
+			"size" | "type" | "onChange"
+		>,
 		VariantProps<typeof switchVariants> {
 	label?: ReactNode;
 	description?: ReactNode;
+	onCheckedChange?: (checked: boolean) => void;
 }
 
 const Switch = forwardRef<HTMLInputElement, SwitchProps>(
-	({ className, size, label, description, disabled, ...props }, ref) => {
+	(
+		{
+			className,
+			size,
+			label,
+			description,
+			disabled,
+			checked,
+			defaultChecked,
+			onCheckedChange,
+			...props
+		},
+		ref,
+	) => {
 		const trackSize = {
 			sm: "h-5 w-9",
 			md: "h-6 w-11",
@@ -31,6 +53,10 @@ const Switch = forwardRef<HTMLInputElement, SwitchProps>(
 			md: "peer-checked:translate-x-5",
 			lg: "peer-checked:translate-x-6",
 		}[size ?? "md"];
+
+		const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+			onCheckedChange?.(event.target.checked);
+		};
 
 		return (
 			<label
@@ -53,8 +79,15 @@ const Switch = forwardRef<HTMLInputElement, SwitchProps>(
 						ref={ref}
 						type="checkbox"
 						role="switch"
-						className={cn(switchVariants({ size }), className)}
+						className={cn(
+							switchVariants({ size }),
+							"peer",
+							className,
+						)}
+						checked={checked}
+						defaultChecked={defaultChecked}
 						disabled={disabled}
+						onChange={handleChange}
 						{...props}
 					/>
 

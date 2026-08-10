@@ -1,4 +1,4 @@
-import { cn } from "../../main";
+import { cn } from "../../lib/cn";
 
 interface TableColumn<T> {
 	key: string;

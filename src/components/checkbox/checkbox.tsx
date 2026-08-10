@@ -12,10 +12,11 @@ import { checkboxVariants } from "./checkbox.variants";
 
 export interface CheckboxProps
 	extends
-		Omit<InputHTMLAttributes<HTMLInputElement>, "size">,
+		Omit<InputHTMLAttributes<HTMLInputElement>, "size" | "onChange">,
 		VariantProps<typeof checkboxVariants> {
 	label?: ReactNode;
 	indeterminate?: boolean;
+	onCheckedChange?: (checked: boolean) => void;
 }
 
 const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
@@ -28,13 +29,13 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
 			checked,
 			defaultChecked,
 			disabled,
-			onChange,
+			onCheckedChange,
 			...props
 		},
 		ref,
 	) => {
 		const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-			onChange?.(event);
+			onCheckedChange?.(event.target.checked);
 		};
 
 		return (
@@ -48,7 +49,11 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
 					<input
 						ref={ref}
 						type="checkbox"
-						className={cn(checkboxVariants({ size }), className)}
+						className={cn(
+							"peer",
+							checkboxVariants({ size }),
+							className,
+						)}
 						checked={checked}
 						defaultChecked={defaultChecked}
 						disabled={disabled}
