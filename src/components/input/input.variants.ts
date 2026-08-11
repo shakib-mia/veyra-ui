@@ -22,9 +22,9 @@ export const inputVariants = cva(
 		"focus-visible:ring-ring/20",
 		"disabled:cursor-not-allowed",
 		"disabled:opacity-60",
-		"aria-invalid:border-danger",
+		"aria-invalid:border-destructive",
 		"aria-invalid:ring-2",
-		"aria-invalid:ring-danger/20",
+		"aria-invalid:ring-destructive/20",
 	],
 	{
 		variants: {
