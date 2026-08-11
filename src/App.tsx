@@ -629,7 +629,7 @@ export default function App() {
 					</Card>
 
 					<Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-						<DialogContent onClose={() => setDialogOpen(false)}>
+						<DialogContent>
 							<DialogHeader>
 								<DialogTitle>Delete Customer</DialogTitle>
 

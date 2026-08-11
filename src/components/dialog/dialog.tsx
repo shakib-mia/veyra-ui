@@ -1,5 +1,7 @@
 import {
+	createContext,
 	forwardRef,
+	useContext,
 	useEffect,
 	type HTMLAttributes,
 	type ReactNode,
@@ -8,6 +10,30 @@ import {
 import { X } from "lucide-react";
 
 import { cn } from "../../lib/cn";
+
+// -----------------------------------------------------------------------------
+// Dialog Context
+// -----------------------------------------------------------------------------
+
+interface DialogContextValue {
+	onOpenChange: (open: boolean) => void;
+}
+
+const DialogContext = createContext<DialogContextValue | null>(null);
+
+const useDialogContext = () => {
+	const context = useContext(DialogContext);
+
+	if (!context) {
+		throw new Error("Dialog components must be used inside a <Dialog>.");
+	}
+
+	return context;
+};
+
+// -----------------------------------------------------------------------------
+// Dialog
+// -----------------------------------------------------------------------------
 
 export interface DialogProps {
 	open: boolean;
@@ -39,30 +65,37 @@ const Dialog = ({ open, onOpenChange, children }: DialogProps) => {
 	if (!open) return null;
 
 	return (
-		<div
-			className="fixed inset-0 z-50 flex items-center justify-center p-4"
-			aria-modal="true"
-			role="dialog"
-		>
+		<DialogContext.Provider value={{ onOpenChange }}>
 			<div
-				aria-hidden="true"
-				className="absolute inset-0 bg-slate-950/40 backdrop-blur-[2px] h-screen"
-				onMouseDown={() => onOpenChange(false)}
-			/>
+				className="fixed inset-0 z-50 flex items-center justify-center p-4"
+				aria-modal="true"
+				role="dialog"
+			>
+				<div
+					aria-hidden="true"
+					className="absolute inset-0 h-screen bg-slate-950/40 backdrop-blur-[2px]"
+					onMouseDown={() => onOpenChange(false)}
+				/>
 
-			{children}
-		</div>
+				{children}
+			</div>
+		</DialogContext.Provider>
 	);
 };
+
+// -----------------------------------------------------------------------------
+// Dialog Content
+// -----------------------------------------------------------------------------
 
 export interface DialogContentProps extends HTMLAttributes<HTMLDivElement> {
 	children: ReactNode;
 	showClose?: boolean;
-	onClose?: () => void;
 }
 
 const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
-	({ className, children, showClose = true, onClose, ...props }, ref) => {
+	({ className, children, showClose = true, ...props }, ref) => {
+		const { onOpenChange } = useDialogContext();
+
 		return (
 			<div
 				ref={ref}
@@ -82,7 +115,7 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
 					<button
 						type="button"
 						aria-label="Close dialog"
-						onClick={onClose}
+						onClick={() => onOpenChange(false)}
 						className={cn(
 							"absolute right-4 top-4",
 							"inline-flex size-8 items-center justify-center",
@@ -108,6 +141,10 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
 
 DialogContent.displayName = "DialogContent";
 
+// -----------------------------------------------------------------------------
+// Dialog Header
+// -----------------------------------------------------------------------------
+
 export interface DialogHeaderProps extends HTMLAttributes<HTMLDivElement> {
 	children: ReactNode;
 }
@@ -128,6 +165,10 @@ const DialogHeader = ({ className, children, ...props }: DialogHeaderProps) => {
 	);
 };
 
+// -----------------------------------------------------------------------------
+// Dialog Title
+// -----------------------------------------------------------------------------
+
 export interface DialogTitleProps extends HTMLAttributes<HTMLHeadingElement> {
 	children: ReactNode;
 }
@@ -146,6 +187,10 @@ const DialogTitle = ({ className, children, ...props }: DialogTitleProps) => {
 		</h2>
 	);
 };
+
+// -----------------------------------------------------------------------------
+// Dialog Description
+// -----------------------------------------------------------------------------
 
 export interface DialogDescriptionProps extends HTMLAttributes<HTMLParagraphElement> {
 	children: ReactNode;
@@ -166,6 +211,10 @@ const DialogDescription = ({
 	);
 };
 
+// -----------------------------------------------------------------------------
+// Dialog Body
+// -----------------------------------------------------------------------------
+
 export interface DialogBodyProps extends HTMLAttributes<HTMLDivElement> {
 	children: ReactNode;
 }
@@ -180,6 +229,10 @@ const DialogBody = ({ className, children, ...props }: DialogBodyProps) => {
 		</div>
 	);
 };
+
+// -----------------------------------------------------------------------------
+// Dialog Footer
+// -----------------------------------------------------------------------------
 
 export interface DialogFooterProps extends HTMLAttributes<HTMLDivElement> {
 	children: ReactNode;
