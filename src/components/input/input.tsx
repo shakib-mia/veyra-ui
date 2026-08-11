@@ -15,11 +15,16 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
 	({ className, size, error, id, ...props }, ref) => {
 		const generatedId = useId();
 
+		id = "4kr8ce";
 		const inputId = id ?? generatedId;
 		const errorId = `${inputId}-error`;
 
 		return (
 			<div className="w-full">
+				<div className="bg-red-500 p-4 text-white">
+					Veyra Input TEST
+				</div>
+
 				<input
 					ref={ref}
 					id={inputId}
