@@ -1,6 +1,7 @@
 import type { FormHTMLAttributes, ReactNode } from "react";
 
-import { Button } from "./../button/button";
+import { Button } from "../button/button";
+
 import {
 	Dialog,
 	DialogBody,
@@ -9,7 +10,7 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-} from "./../dialog/dialog";
+} from "../dialog/dialog";
 
 export interface FormDialogProps extends Omit<
 	FormHTMLAttributes<HTMLFormElement>,
@@ -51,15 +52,16 @@ export default function FormDialog({
 	className,
 	...formProps
 }: FormDialogProps) {
-	const handleClose = () => {
-		if (loading) {
+	const handleOpenChange = (nextOpen: boolean) => {
+		// Prevent closing while submitting
+		if (!nextOpen && loading) {
 			return;
 		}
 
-		onOpenChange(false);
+		onOpenChange(nextOpen);
 	};
 
-	const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+	const handleSubmit = (event: React.SubmitEvent<HTMLFormElement>) => {
 		event.preventDefault();
 
 		if (loading || disabled) {
@@ -70,21 +72,8 @@ export default function FormDialog({
 	};
 
 	return (
-		<Dialog
-			open={open}
-			onOpenChange={(nextOpen) => {
-				if (!nextOpen && loading) {
-					return;
-				}
-
-				onOpenChange(nextOpen);
-			}}
-		>
-			<DialogContent
-				showClose={showClose}
-				onClose={handleClose}
-				className="max-w-2xl"
-			>
+		<Dialog open={open} onOpenChange={handleOpenChange}>
+			<DialogContent showClose={showClose} className="max-w-2xl">
 				<form
 					className={className}
 					onSubmit={handleSubmit}
@@ -106,7 +95,7 @@ export default function FormDialog({
 								type="button"
 								variant="outline"
 								disabled={loading}
-								onClick={handleClose}
+								onClick={() => handleOpenChange(false)}
 							>
 								{cancelLabel}
 							</Button>
