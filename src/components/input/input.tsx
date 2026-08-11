@@ -21,10 +21,6 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
 
 		return (
 			<div className="w-full">
-				<div className="bg-red-500 p-4 text-white">
-					Veyra Input TEST
-				</div>
-
 				<input
 					ref={ref}
 					id={inputId}
