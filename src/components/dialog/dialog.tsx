@@ -100,7 +100,7 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
 			<div
 				ref={ref}
 				className={cn(
-					"relative z-10 w-full max-w-lg",
+					"relative z-10 flex max-h-[90vh] w-full max-w-lg flex-col",
 					"rounded-xl border border-border",
 					"bg-card text-card-foreground",
 					"shadow-lg",
@@ -222,7 +222,10 @@ export interface DialogBodyProps extends HTMLAttributes<HTMLDivElement> {
 const DialogBody = ({ className, children, ...props }: DialogBodyProps) => {
 	return (
 		<div
-			className={cn("max-h-[70vh] overflow-y-auto px-6 py-5", className)}
+			className={cn(
+				"min-h-0 flex-1 overflow-y-auto px-6 py-5",
+				className,
+			)}
 			{...props}
 		>
 			{children}
