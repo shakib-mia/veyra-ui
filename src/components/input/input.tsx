@@ -1,4 +1,4 @@
-import { forwardRef, type InputHTMLAttributes } from "react";
+import { forwardRef, useId, type InputHTMLAttributes } from "react";
 import type { VariantProps } from "class-variance-authority";
 
 import { cn } from "../../lib/cn";
@@ -7,21 +7,39 @@ import { inputVariants } from "./input.variants";
 export interface InputProps
 	extends
 		Omit<InputHTMLAttributes<HTMLInputElement>, "size">,
-		VariantProps<typeof inputVariants> {}
+		VariantProps<typeof inputVariants> {
+	error?: string;
+}
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
-	({ className, size, ...props }, ref) => {
+	({ className, size, error, id, ...props }, ref) => {
+		const generatedId = useId();
+
+		const inputId = id ?? generatedId;
+		const errorId = `${inputId}-error`;
+
 		return (
-			<input
-				ref={ref}
-				className={cn(
-					inputVariants({
-						size,
-					}),
-					className,
+			<div className="w-full">
+				<input
+					ref={ref}
+					id={inputId}
+					aria-invalid={error ? true : undefined}
+					aria-describedby={error ? errorId : undefined}
+					className={cn(
+						inputVariants({
+							size,
+						}),
+						className,
+					)}
+					{...props}
+				/>
+
+				{error && (
+					<p id={errorId} className="mt-1 text-sm text-destructive">
+						{error}
+					</p>
 				)}
-				{...props}
-			/>
+			</div>
 		);
 	},
 );
