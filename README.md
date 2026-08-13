@@ -1,76 +1,60 @@
-# React + TypeScript + Vite
+# Veyra UI
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Veyra UI is a lightweight React component library built with TypeScript and Vite. It provides accessible, themeable components and utilities for building consistent UIs.
 
-Currently, two official plugins are available:
+## Documentation
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Full documentation (guides, component references, examples) is available in the `docs/` folder of this repository. Start with:
 
-## React Compiler
+- [docs/index.md](docs/index.md)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Install
 
-## Expanding the ESLint configuration
+Install from npm:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+npm install veyra-ui
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Or with yarn:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+yarn add veyra-ui
 ```
-# veyra-ui
+
+## Quick usage
+
+Import global styles once in your app (for example in `src/main.tsx`) and use components:
+
+```tsx
+import "veyra-ui/styles/index.css";
+import React from "react";
+import { Button } from "veyra-ui";
+
+export default function App() {
+	return <Button>Click me</Button>;
+}
+```
+
+## Development
+
+To develop locally:
+
+```bash
+npm install
+npm run dev
+```
+
+Run the library build:
+
+```bash
+npm run build
+```
+
+## Contributing
+
+See [docs/contributing.md](docs/contributing.md) for contribution guidelines, the development workflow, and testing tips.
+
+## License
+
+This project is available under the MIT License. See the `LICENSE` file for details.
