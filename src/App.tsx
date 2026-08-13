@@ -285,6 +285,15 @@ export default function App() {
 										},
 									]}
 									placeholder="Select customer type"
+									isCreatable
+									onCreateOption={() => {
+										console.log(
+											"Add customer type clicked",
+										);
+
+										// এখানে modal open করবে
+										// setIsCustomerTypeModalOpen(true);
+									}}
 								/>
 							</div>
 
@@ -441,10 +450,14 @@ export default function App() {
 						<div className="p-6">
 							<DataTable<Customer>
 								data={customers}
+								// rowAlign={"center"}
+								headerAlign="center"
+								rowAlign="left"
 								columns={[
 									{
 										key: "customer",
 										header: "Customer",
+
 										render: ({ row }) => (
 											<div className="flex items-center gap-3">
 												<Avatar
@@ -471,6 +484,8 @@ export default function App() {
 									{
 										key: "phone",
 										header: "Phone",
+										className: "text-center",
+										headerClassName: "text-left",
 										accessor: (row) => row.phone,
 									},
 
@@ -712,6 +727,7 @@ export default function App() {
 									},
 								]}
 								placeholder="Select type"
+								isCreatable
 							/>
 						</div>
 

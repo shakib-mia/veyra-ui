@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import type { TableAlign, TableColumn } from "./Table";
 
 export interface DataTableColumn<T> {
 	key: string;
@@ -73,4 +74,13 @@ export interface DataTableProps<T extends object> {
 
 	showFilterChips?: boolean;
 	filterChipsClearLabel?: string;
+	rowAlign?: TableAlign | ((row: T, index: number) => TableAlign | undefined);
+
+	cellAlign?: (
+		row: T,
+		column: TableColumn<T>,
+		index: number,
+	) => TableAlign | undefined;
+
+	headerAlign?: TableAlign;
 }

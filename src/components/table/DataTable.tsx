@@ -30,6 +30,11 @@ export default function DataTable<T extends object>({
 
 	showFilterChips = false,
 	filterChipsClearLabel = "Clear all",
+
+	cellAlign,
+	rowAlign,
+
+	headerAlign,
 }: DataTableProps<T>) {
 	/**
 	 * Client-side state
@@ -221,8 +226,6 @@ export default function DataTable<T extends object>({
 
 	/**
 	 * Filter action
-	 *
-	 * This is the important part.
 	 */
 	const handleFilterChange = (key: string, value: string) => {
 		/**
@@ -234,8 +237,8 @@ export default function DataTable<T extends object>({
 			onFilterChange?.(key, value);
 
 			/**
-			 * Changing a filter should always
-			 * start from page 1.
+			 * Changing a filter should
+			 * always start from page 1.
 			 */
 			if (isServerPagination) {
 				pagination?.onPageChange?.(1);
@@ -341,6 +344,7 @@ export default function DataTable<T extends object>({
 	const handlePageChange = (page: number) => {
 		if (isServerPagination) {
 			pagination?.onPageChange?.(page);
+
 			return;
 		}
 
@@ -353,6 +357,7 @@ export default function DataTable<T extends object>({
 	const handlePageSizeChange = (pageSize: number) => {
 		if (isServerPagination) {
 			pagination?.onPageSizeChange?.(pageSize);
+
 			return;
 		}
 
@@ -406,6 +411,9 @@ export default function DataTable<T extends object>({
 				loading={loading}
 				emptyMessage={emptyMessage}
 				onRowClick={onRowClick}
+				cellAlign={cellAlign}
+				rowAlign={rowAlign}
+				headerAlign={headerAlign}
 			/>
 
 			{/* Pagination */}

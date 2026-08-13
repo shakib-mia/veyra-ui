@@ -1,6 +1,12 @@
 import { useState } from "react";
-import ReactSelect from "react-select";
-import type { SingleValue, StylesConfig } from "react-select";
+import ReactSelect, { components } from "react-select";
+
+import type {
+	ActionMeta,
+	SingleValue,
+	MenuListProps,
+	StylesConfig,
+} from "react-select";
 import type { VariantProps } from "class-variance-authority";
 
 import { cn } from "../../lib/cn";
@@ -30,6 +36,21 @@ export type SelectProps = VariantProps<typeof selectVariants> & {
 	isDisabled?: boolean;
 	isClearable?: boolean;
 	isSearchable?: boolean;
+
+	/**
+	 * Show an "Add new" option at the bottom of the dropdown.
+	 */
+	isCreatable?: boolean;
+
+	/**
+	 * Called when the "Add new" option is clicked.
+	 */
+	onCreateOption?: () => void;
+
+	/**
+	 * Label for the "Add new" option.
+	 */
+	createOptionLabel?: string;
 };
 
 const Select = ({
@@ -44,6 +65,9 @@ const Select = ({
 	isDisabled = false,
 	isClearable = false,
 	isSearchable = true,
+	isCreatable = false,
+	onCreateOption,
+	createOptionLabel = "Add new",
 	size,
 }: SelectProps) => {
 	const [internalValue, setInternalValue] = useState(defaultValue);
@@ -55,7 +79,10 @@ const Select = ({
 	const selectedOption =
 		options.find((option) => option.value === selectedValue) ?? null;
 
-	const handleChange = (option: SingleValue<SelectOption>) => {
+	const handleChange = (
+		option: SingleValue<SelectOption>,
+		_actionMeta: ActionMeta<SelectOption>,
+	) => {
 		const nextValue = option?.value ?? "";
 
 		if (!isControlled) {
@@ -106,6 +133,7 @@ const Select = ({
 
 		placeholder: (base) => ({
 			...base,
+
 			color: "var(--color-muted-foreground)",
 		}),
 
@@ -119,6 +147,7 @@ const Select = ({
 
 		input: (base) => ({
 			...base,
+
 			color: "var(--color-foreground)",
 		}),
 
@@ -140,6 +169,7 @@ const Select = ({
 
 		menuList: (base) => ({
 			...base,
+
 			padding: 4,
 		}),
 
@@ -193,8 +223,92 @@ const Select = ({
 
 		noOptionsMessage: (base) => ({
 			...base,
+
 			color: "var(--color-muted-foreground)",
 		}),
+
+		loadingMessage: (base) => ({
+			...base,
+
+			color: "var(--color-muted-foreground)",
+		}),
+	};
+
+	/**
+	 * Custom MenuList
+	 *
+	 * Adds an "Add new" action at the bottom of the dropdown.
+	 */
+	const MenuList = (props: MenuListProps<SelectOption, false>) => {
+		return (
+			<components.MenuList {...props}>
+				{props.children}
+
+				{isCreatable && (
+					<div
+						style={{
+							marginTop: 8,
+							paddingTop: 8,
+							borderTop: "1px solid var(--color-border)",
+						}}
+					>
+						<div
+							role="button"
+							tabIndex={0}
+							onMouseDown={(event) => {
+								event.preventDefault();
+								event.stopPropagation();
+
+								if (!isDisabled) {
+									onCreateOption?.();
+								}
+							}}
+							onKeyDown={(event) => {
+								if (
+									event.key === "Enter" ||
+									event.key === " "
+								) {
+									event.preventDefault();
+
+									if (!isDisabled) {
+										onCreateOption?.();
+									}
+								}
+							}}
+							style={{
+								padding: "10px 12px",
+
+								borderRadius: "var(--radius-sm)",
+
+								color: "var(--color-primary)",
+
+								backgroundColor: "var(--color-background)",
+
+								fontWeight: 500,
+
+								cursor: isDisabled ? "not-allowed" : "pointer",
+
+								opacity: isDisabled ? 0.5 : 1,
+
+								userSelect: "none",
+							}}
+							onMouseEnter={(event) => {
+								if (!isDisabled) {
+									event.currentTarget.style.backgroundColor =
+										"var(--color-accent)";
+								}
+							}}
+							onMouseLeave={(event) => {
+								event.currentTarget.style.backgroundColor =
+									"var(--color-background)";
+							}}
+						>
+							+ {createOptionLabel}
+						</div>
+					</div>
+				)}
+			</components.MenuList>
+		);
 	};
 
 	return (
@@ -211,6 +325,9 @@ const Select = ({
 			isOptionDisabled={(option) =>
 				option.disabled || isOptionDisabled?.(option) === true
 			}
+			components={{
+				MenuList,
+			}}
 			onChange={handleChange}
 		/>
 	);
