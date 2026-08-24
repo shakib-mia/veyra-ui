@@ -1,26 +1,41 @@
-import {
-	FormProvider as RHFFormProvider,
-	type FieldValues,
-	type UseFormReturn,
-} from "react-hook-form";
+import { createContext, useContext, type ReactNode } from "react";
+
+import type { FieldValues, UseFormReturn } from "react-hook-form";
+
 import type { ZodType } from "zod";
 
-import { FormSchemaContext } from "./form-field.context";
-
-interface FormProviderProps<TFieldValues extends FieldValues> {
-	form: UseFormReturn<TFieldValues>;
+interface FormSchemaContextValue {
 	schema: ZodType;
-	children: React.ReactNode;
 }
 
-export function FormProvider<TFieldValues extends FieldValues>({
-	form,
-	schema,
-	children,
-}: FormProviderProps<TFieldValues>) {
+const FormSchemaContext = createContext<FormSchemaContextValue | null>(null);
+
+export interface FormProviderProps<
+	TFieldValues extends FieldValues,
+	TSchema extends ZodType = ZodType,
+> {
+	form: UseFormReturn<TFieldValues>;
+	schema: TSchema;
+	children: ReactNode;
+}
+
+export function FormProvider<
+	TFieldValues extends FieldValues,
+	TSchema extends ZodType,
+>({ form, schema, children }: FormProviderProps<TFieldValues, TSchema>) {
 	return (
 		<FormSchemaContext.Provider value={{ schema }}>
-			<RHFFormProvider {...form}>{children}</RHFFormProvider>
+			{children}
 		</FormSchemaContext.Provider>
 	);
+}
+
+export function useFormSchema(): ZodType {
+	const context = useContext(FormSchemaContext);
+
+	if (!context) {
+		throw new Error("useFormSchema must be used inside FormProvider");
+	}
+
+	return context.schema;
 }
