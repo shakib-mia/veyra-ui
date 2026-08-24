@@ -1,6 +1,6 @@
 {
 	"name": "veyra-ui",
-	"version": "0.1.17",
+	"version": "0.1.18",
 	"description": "A reusable React UI component library for modern React applications.",
 	"type": "module",
 	"module": "./dist/veyra-ui.js",
