@@ -1,24 +1,23 @@
-import type { Control, FieldPath, FieldValues } from "react-hook-form";
+import type {
+	FieldPath,
+	FieldValues,
+	ControllerRenderProps,
+} from "react-hook-form";
 
-export type FormFieldType =
-	| "text"
-	| "email"
-	| "password"
-	| "number"
-	| "tel"
-	| "url"
-	| "search"
-	| "file";
+export interface FormFieldOption {
+	label: string;
+	value: string;
+}
 
 export interface FormFieldRenderProps<
 	TFieldValues extends FieldValues,
 	TName extends FieldPath<TFieldValues>,
 > {
-	value: TFieldValues[TName];
-	onChange: (...event: unknown[]) => void;
-	onBlur: () => void;
-	name: TName;
-	ref: (instance: unknown) => void;
+	value: ControllerRenderProps<TFieldValues, TName>["value"];
+	onChange: ControllerRenderProps<TFieldValues, TName>["onChange"];
+	onBlur: ControllerRenderProps<TFieldValues, TName>["onBlur"];
+	name: ControllerRenderProps<TFieldValues, TName>["name"];
+	ref: ControllerRenderProps<TFieldValues, TName>["ref"];
 }
 
 export interface FormFieldProps<
@@ -27,16 +26,24 @@ export interface FormFieldProps<
 > {
 	name: TName;
 	label?: string;
-	control?: Control<TFieldValues>;
-	type?: FormFieldType;
+
+	control?: import("react-hook-form").Control<TFieldValues>;
+
+	type?: "text" | "email" | "tel" | "number" | "password" | "file" | "select";
+
 	textarea?: boolean;
+
 	placeholder?: string;
-	required?: boolean;
 	disabled?: boolean;
+	required?: boolean;
+
 	className?: string;
 	id?: string;
 	rows?: number;
 	accept?: string;
+
+	options?: FormFieldOption[];
+
 	render?: (
 		field: FormFieldRenderProps<TFieldValues, TName>,
 	) => React.ReactNode;

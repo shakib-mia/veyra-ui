@@ -46,7 +46,14 @@ import {
 import { useState } from "react";
 import { MoreHorizontal, Plus, Search, UserPlus } from "lucide-react";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+
+import { FormField } from "./index";
+
 import { DataTable } from "./components/table";
+import { FormProvider } from "./components/form-field/form-field.provider";
 
 interface Customer {
 	id: number;
@@ -106,6 +113,19 @@ const customers: Customer[] = [
 	},
 ];
 
+const playgroundFormSchema = z.object({
+	name: z.string().min(1, "Customer name is required"),
+	email: z
+		.string()
+		.email("Please enter a valid email address")
+		.optional()
+		.or(z.literal("")),
+	phone: z.string().min(1, "Phone number is required"),
+	type: z.string().min(1, "Customer type is required"),
+	notes: z.string().optional(),
+});
+type PlaygroundFormValues = z.infer<typeof playgroundFormSchema>;
+
 export default function App() {
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const [formDialogOpen, setFormDialogOpen] = useState(false);
@@ -117,6 +137,11 @@ export default function App() {
 
 	const [serverFilter, setServerFilter] = useState("");
 	const [formLoading, setFormLoading] = useState(false);
+
+	const form = useForm<PlaygroundFormValues>({
+		resolver: zodResolver(playgroundFormSchema),
+		defaultValues: { name: "", email: "", phone: "", type: "", notes: "" },
+	});
 
 	const handleFormSubmit = () => {
 		setFormLoading(true);
@@ -236,77 +261,72 @@ export default function App() {
 
 				<Section
 					title="Form Controls"
-					description="Common controls used in application forms."
+					description="Schema-aware form fields with automatic validation and required indicators."
 				>
+					{" "}
 					<Card>
-						<div className="grid gap-6 p-6 md:grid-cols-2">
-							<div className="space-y-2">
-								<Label htmlFor="customer-name">
-									Customer Name
-								</Label>
-
-								<Input
-									id="customer-name"
-									placeholder="Enter customer name"
-								/>
-							</div>
-
-							<div className="space-y-2">
-								<Label htmlFor="customer-email">Email</Label>
-
-								<Input
-									id="customer-email"
-									type="email"
-									placeholder="customer@example.com"
-								/>
-							</div>
-
-							<div className="space-y-2">
-								<Label htmlFor="customer-phone">Phone</Label>
-
-								<Input
-									id="customer-phone"
-									placeholder="+880 1XXXXXXXXX"
-								/>
-							</div>
-
-							<div className="space-y-2">
-								<Label>Customer Type</Label>
-
-								<Select
-									options={[
-										{
-											label: "Individual",
-											value: "individual",
-										},
-										{
-											label: "Business",
-											value: "business",
-										},
-									]}
-									placeholder="Select customer type"
-									isCreatable
-									onCreateOption={() => {
-										console.log(
-											"Add customer type clicked",
-										);
-
-										// এখানে modal open করবে
-										// setIsCustomerTypeModalOpen(true);
-									}}
-								/>
-							</div>
-
-							<div className="space-y-2 md:col-span-2">
-								<Label htmlFor="customer-notes">Notes</Label>
-
-								<Textarea
-									id="customer-notes"
-									placeholder="Additional customer information..."
-								/>
-							</div>
-						</div>
-					</Card>
+						{" "}
+						<FormProvider form={form} schema={playgroundFormSchema}>
+							{" "}
+							<form
+								onSubmit={form.handleSubmit((data) => {
+									console.log("Submitted:", data);
+								})}
+								className="space-y-6 p-6"
+							>
+								{" "}
+								<div className="grid gap-6 md:grid-cols-2">
+									{" "}
+									<FormField
+										name="name"
+										label="Customer Name"
+										placeholder="Enter customer name"
+									/>{" "}
+									<FormField
+										name="email"
+										label="Email"
+										type="email"
+										placeholder="customer@example.com"
+									/>{" "}
+									<FormField
+										name="phone"
+										label="Phone"
+										placeholder="+880 1XXXXXXXXX"
+									/>{" "}
+									<FormField
+										name="type"
+										label="Customer Type"
+										type="select"
+										placeholder="Select customer type"
+										options={[
+											{
+												label: "Individual",
+												value: "individual",
+											},
+											{
+												label: "Business",
+												value: "business",
+											},
+										]}
+									/>{" "}
+									<FormField
+										name="notes"
+										label="Notes"
+										textarea
+										placeholder="Additional customer information..."
+										className="md:col-span-2"
+									/>{" "}
+								</div>{" "}
+								<div className="flex justify-end">
+									{" "}
+									<Button type="submit">
+										{" "}
+										Submit Form{" "}
+									</Button>{" "}
+								</div>{" "}
+							</form>{" "}
+						</FormProvider>{" "}
+					</Card>{" "}
 				</Section>
 
 				{/* --------------------------------------------------- */}

@@ -1,24 +1,17 @@
-import type { ZodObject, ZodType } from "zod";
-
+import { z } from "zod";
 export const getFieldSchema = (
-	schema: ZodType,
+	schema: z.ZodType,
 	name: string,
-): ZodType | undefined => {
-	if (!(schema instanceof Object)) {
+): z.ZodType | undefined => {
+	if (!(schema instanceof z.ZodObject)) {
 		return undefined;
 	}
-
-	const objectSchema = schema as ZodObject;
-
-	return objectSchema.shape[name] as ZodType | undefined;
+	return schema.shape[name] as z.ZodType | undefined;
 };
-
-export const isFieldRequired = (schema: ZodType, name: string): boolean => {
+export const isFieldRequired = (schema: z.ZodType, name: string): boolean => {
 	const fieldSchema = getFieldSchema(schema, name);
-
 	if (!fieldSchema) {
 		return false;
 	}
-
 	return !fieldSchema.isOptional();
 };
