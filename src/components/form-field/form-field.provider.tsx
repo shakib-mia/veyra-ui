@@ -1,6 +1,10 @@
 import { createContext, useContext, type ReactNode } from "react";
 
-import type { FieldValues, UseFormReturn } from "react-hook-form";
+import {
+	FormProvider as RHFFormProvicer,
+	type FieldValues,
+	type UseFormReturn,
+} from "react-hook-form";
 
 interface FormSchemaContextValue {
 	schema: unknown;
@@ -21,7 +25,7 @@ export function FormProvider<TFieldValues extends FieldValues>({
 }: FormProviderProps<TFieldValues>) {
 	return (
 		<FormSchemaContext.Provider value={{ schema }}>
-			{children}
+			<RHFFormProvicer {...form}>{children}</RHFFormProvicer>
 		</FormSchemaContext.Provider>
 	);
 }
