@@ -2,27 +2,23 @@ import { createContext, useContext, type ReactNode } from "react";
 
 import type { FieldValues, UseFormReturn } from "react-hook-form";
 
-import type { ZodType } from "zod";
-
 interface FormSchemaContextValue {
-	schema: ZodType;
+	schema: unknown;
 }
 
 const FormSchemaContext = createContext<FormSchemaContextValue | null>(null);
 
-export interface FormProviderProps<
-	TFieldValues extends FieldValues,
-	TSchema extends ZodType = ZodType,
-> {
+export interface FormProviderProps<TFieldValues extends FieldValues> {
 	form: UseFormReturn<TFieldValues>;
-	schema: TSchema;
+	schema: unknown;
 	children: ReactNode;
 }
 
-export function FormProvider<
-	TFieldValues extends FieldValues,
-	TSchema extends ZodType,
->({ form, schema, children }: FormProviderProps<TFieldValues, TSchema>) {
+export function FormProvider<TFieldValues extends FieldValues>({
+	form,
+	schema,
+	children,
+}: FormProviderProps<TFieldValues>) {
 	return (
 		<FormSchemaContext.Provider value={{ schema }}>
 			{children}
@@ -30,7 +26,7 @@ export function FormProvider<
 	);
 }
 
-export function useFormSchema(): ZodType {
+export function useFormSchema(): unknown {
 	const context = useContext(FormSchemaContext);
 
 	if (!context) {
