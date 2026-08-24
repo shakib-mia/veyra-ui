@@ -30,7 +30,7 @@ export interface ConfirmDialogProps {
 	onConfirm: () => void | Promise<void>;
 }
 
-const ConfirmDialog = ({
+export const ConfirmDialog = ({
 	open,
 	onOpenChange,
 
