@@ -668,7 +668,10 @@ export default function App() {
 									Cancel
 								</Button>
 
-								<Button onClick={() => setDialogOpen(false)}>
+								<Button
+									variant={"destructive"}
+									onClick={() => setDialogOpen(false)}
+								>
 									Delete Customer
 								</Button>
 							</DialogFooter>
