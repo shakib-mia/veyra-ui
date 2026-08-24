@@ -100,7 +100,7 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
 			<div
 				ref={ref}
 				className={cn(
-					"relative z-10 flex max-h-[90vh] w-full overflow-y-hidden max-w-lg flex-col",
+					"relative z-10 flex max-h-[90vh] w-full overflow-hidden max-w-lg flex-col",
 					"rounded-xl border border-border",
 					"bg-card text-card-foreground",
 					"shadow-lg",
