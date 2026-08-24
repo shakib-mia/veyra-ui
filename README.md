@@ -1,10 +1,10 @@
 # Veyra UI
 
-Veyra UI is a lightweight React component library built with TypeScript and Vite. It provides accessible, themeable components and utilities for building consistent UIs.
+Veyra UI is a lightweight, themeable React component library for building consistent application interfaces with TypeScript.
 
 ## Documentation
 
-Full documentation (guides, component references, examples) is available in the `docs/` folder of this repository. Start with:
+Full documentation, component references, examples, and contribution guidance are available in the `docs/` folder. Start with:
 
 - [docs/index.md](docs/index.md)
 
@@ -24,11 +24,10 @@ yarn add veyra-ui
 
 ## Quick usage
 
-Import global styles once in your app (for example in `src/main.tsx`) and use components:
+Import the published stylesheet once in your app and use components:
 
 ```tsx
-import "veyra-ui/styles/index.css";
-import React from "react";
+import "veyra-ui/styles.css";
 import { Button } from "veyra-ui";
 
 export default function App() {

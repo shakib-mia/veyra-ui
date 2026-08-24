@@ -1,6 +1,6 @@
 # Components Overview
 
-This section lists all components provided by Veyra UI. Click a component to see usage examples and API details.
+Veyra UI exports every component and public prop type from the package root. The individual pages provide focused examples; the [complete API reference](reference.md) groups composition rules and important props in one place.
 
 - [Accordion](accordion.md)
 - [Alert](alert.md)
@@ -9,6 +9,7 @@ This section lists all components provided by Veyra UI. Click a component to see
 - [Button](button.md)
 - [Card](card.md)
 - [Checkbox](checkbox.md)
+- [Confirm Dialog](confirm-dialog.md)
 - [Date Picker](date-picker.md)
 - [Date Range Picker](date-range-picker.md)
 - [Dialog](dialog.md)
@@ -35,3 +36,16 @@ This section lists all components provided by Veyra UI. Click a component to see
 - [Tabs](tabs.md)
 - [Textarea](textarea.md)
 - [Tooltip](tooltip.md)
+
+## By use case
+
+- Actions and feedback: Button, Badge, Alert, Spinner, Skeleton, Empty State
+- Forms: Label, Form Field, Input, Textarea, Select, Checkbox, Radio, Radio Group, Switch
+- Overlays: Dialog, Confirm Dialog, Form Dialog, Dropdown Menu, Popover, Tooltip
+- Navigation and layout: Page Header, Breadcrumb, Tabs, Accordion, Separator
+- Data and files: Table, Data Table, Pagination, File Upload, Date Picker, Date Range Picker, Filter Chips
+
+## Reference
+
+- [Complete API reference](reference.md)
+- [Exported utility: `cn`](reference.md#cn)
