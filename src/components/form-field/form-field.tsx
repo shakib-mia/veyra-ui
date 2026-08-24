@@ -1,69 +1,123 @@
-import type { ReactNode } from "react";
+import {
+	Controller,
+	useFormContext,
+	type FieldPath,
+	type FieldValues,
+} from "react-hook-form";
 
-import { cn } from "../../lib/cn";
+import { useFormSchema } from "./use-form-schema";
+import { isFieldRequired } from "./form-field.utils";
+import type { FormFieldProps, FormFieldRenderProps } from "./form-field.types";
+import { Textarea } from "../textarea";
+import { Input } from "../input";
+import { FileUpload } from "../file-upload";
+import { Label } from "../label";
 
-export interface FormFieldProps {
-	label?: ReactNode;
-	description?: ReactNode;
-	error?: ReactNode;
-	required?: boolean;
-	htmlFor?: string;
-	className?: string;
-	children: ReactNode;
-}
-
-const FormField = ({
+export function FormField<
+	TFieldValues extends FieldValues,
+	TName extends FieldPath<TFieldValues>,
+>({
+	name,
 	label,
-	description,
-	error,
-	required = false,
-	htmlFor,
+	control: controlProp,
+	type = "text",
+	textarea = false,
+	placeholder,
+	disabled = false,
+	required: requiredProp,
 	className,
-	children,
-}: FormFieldProps) => {
-	return (
-		<div className={cn("space-y-2", className)}>
-			{label && (
-				<div>
-					<label
-						htmlFor={htmlFor}
-						className={cn(
-							"inline-flex items-center gap-1",
-							"text-sm font-medium text-foreground",
-							error && "text-danger",
-						)}
-					>
-						{label}
+	id,
+	rows = 3,
+	accept,
+	render,
+}: FormFieldProps<TFieldValues, TName>) {
+	const formContext = useFormContext<TFieldValues>();
+	const schema = useFormSchema();
 
-						{required && (
-							<span aria-hidden="true" className="text-danger">
-								*
-							</span>
-						)}
-					</label>
-				</div>
+	const control = controlProp ?? formContext.control;
+
+	const generatedId = id ?? String(name);
+
+	const schemaRequired = isFieldRequired(schema, String(name));
+
+	const required = requiredProp ?? schemaRequired;
+
+	return (
+		<div className={`space-y-2 ${className ?? ""}`}>
+			{label && (
+				<Label htmlFor={generatedId}>
+					{label}
+
+					{required && <span className="ml-1 text-red-500">*</span>}
+				</Label>
 			)}
 
-			{children}
+			<Controller
+				name={name}
+				control={control}
+				render={({ field, fieldState }) => {
+					const renderField: FormFieldRenderProps<
+						TFieldValues,
+						TName
+					> = {
+						value: field.value,
+						onChange: field.onChange,
+						onBlur: field.onBlur,
+						name: field.name,
+						ref: field.ref,
+					};
 
-			{error ? (
-				<p
-					id={htmlFor ? `${htmlFor}-error` : undefined}
-					className="text-xs text-danger"
-					role="alert"
-				>
-					{error}
-				</p>
-			) : description ? (
-				<p
-					id={htmlFor ? `${htmlFor}-description` : undefined}
-					className="text-xs text-muted-foreground"
-				>
-					{description}
-				</p>
-			) : null}
+					let fieldComponent: React.ReactNode;
+
+					if (render) {
+						fieldComponent = render(renderField);
+					} else if (type === "file") {
+						fieldComponent = (
+							<FileUpload
+								value={field.value ? [field.value] : []}
+								onChange={(files) => field.onChange(files[0])}
+								multiple={false}
+								maxFiles={1}
+								accept={accept}
+								preview
+								disabled={disabled}
+							/>
+						);
+					} else if (textarea) {
+						fieldComponent = (
+							<Textarea
+								{...field}
+								id={generatedId}
+								placeholder={placeholder}
+								rows={rows}
+								disabled={disabled}
+							/>
+						);
+					} else {
+						fieldComponent = (
+							<Input
+								{...field}
+								id={generatedId}
+								type={type}
+								placeholder={placeholder}
+								disabled={disabled}
+							/>
+						);
+					}
+
+					return (
+						<>
+							{fieldComponent}
+
+							{fieldState.error?.message && (
+								<p className="text-sm text-red-500">
+									{fieldState.error.message}
+								</p>
+							)}
+						</>
+					);
+				}}
+			/>
 		</div>
 	);
-};
-
-export { FormField };
+}
