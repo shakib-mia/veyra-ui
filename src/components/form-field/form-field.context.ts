@@ -1,8 +1,8 @@
 import { createContext } from "react";
-import type { ZodType } from "zod";
+import type { z } from "zod";
 
 export interface FormSchemaContextValue {
-	schema: ZodType;
+	schema: z.ZodTypeAny;
 }
 
 export const FormSchemaContext = createContext<FormSchemaContextValue | null>(
