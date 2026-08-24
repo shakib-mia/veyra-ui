@@ -1,2 +1,8 @@
 export { FormField } from "./form-field";
-export type { FormFieldProps } from "./form-field.types";
+export { FormProvider } from "./form-field.provider";
+
+export type {
+	FormFieldProps,
+	FormFieldOption,
+	FormFieldRenderProps,
+} from "./form-field.types";

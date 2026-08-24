@@ -25,6 +25,7 @@ import {
 	EmptyState,
 	FileUpload,
 	FormDialog,
+	FormProvider,
 	Input,
 	Label,
 	PageHeader,
@@ -53,7 +54,6 @@ import { z } from "zod";
 import { FormField } from "./index";
 
 import { DataTable } from "./components/table";
-import { FormProvider } from "./components/form-field/form-field.provider";
 
 interface Customer {
 	id: number;
