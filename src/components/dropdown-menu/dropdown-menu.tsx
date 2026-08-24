@@ -12,6 +12,7 @@ import {
 import { Check, ChevronRight } from "lucide-react";
 
 import { cn } from "../../lib/cn";
+import { createPortal } from "react-dom";
 
 type DropdownContextValue = {
 	open: boolean;
@@ -96,6 +97,11 @@ export interface DropdownMenuContentProps extends HTMLAttributes<HTMLDivElement>
 	align?: "start" | "center" | "end";
 }
 
+export interface DropdownMenuContentProps extends HTMLAttributes<HTMLDivElement> {
+	children: ReactNode;
+	align?: "start" | "center" | "end";
+}
+
 const DropdownMenuContent = ({
 	children,
 	className,
@@ -105,6 +111,59 @@ const DropdownMenuContent = ({
 	const { open, setOpen } = useDropdown();
 
 	const contentRef = useRef<HTMLDivElement>(null);
+	const triggerRef = useRef<HTMLElement | null>(null);
+
+	const [position, setPosition] = useState({
+		top: 0,
+		left: 0,
+	});
+
+	useEffect(() => {
+		if (!open) return;
+
+		const trigger = document.activeElement;
+
+		if (trigger instanceof HTMLElement) {
+			triggerRef.current = trigger;
+		}
+
+		const updatePosition = () => {
+			const triggerElement = triggerRef.current;
+
+			if (!triggerElement) return;
+
+			const rect = triggerElement.getBoundingClientRect();
+
+			const gap = 8;
+
+			let top = rect.bottom + gap;
+			let left = rect.left;
+
+			if (align === "center") {
+				left = rect.left + rect.width / 2;
+			}
+
+			if (align === "end") {
+				left = rect.right;
+			}
+
+			setPosition({
+				top,
+				left,
+			});
+		};
+
+		updatePosition();
+
+		window.addEventListener("resize", updatePosition);
+		window.addEventListener("scroll", updatePosition, true);
+
+		return () => {
+			window.removeEventListener("resize", updatePosition);
+
+			window.removeEventListener("scroll", updatePosition, true);
+		};
+	}, [open, align]);
 
 	useEffect(() => {
 		if (!open) return;
@@ -114,7 +173,8 @@ const DropdownMenuContent = ({
 
 			if (
 				target instanceof Node &&
-				!contentRef.current?.contains(target)
+				!contentRef.current?.contains(target) &&
+				!triggerRef.current?.contains(target)
 			) {
 				setOpen(false);
 			}
@@ -139,27 +199,36 @@ const DropdownMenuContent = ({
 
 	if (!open) return null;
 
-	return (
+	const alignmentClass =
+		align === "start"
+			? "-translate-x-0"
+			: align === "center"
+				? "-translate-x-1/2"
+				: "-translate-x-full";
+
+	return createPortal(
 		<div
 			ref={contentRef}
 			role="menu"
 			className={cn(
-				"absolute z-50 mt-2 min-w-48",
+				"fixed z-9999 min-w-48",
 				"rounded-lg border border-border",
 				"bg-popover p-1",
 				"shadow-md",
-				align === "start" && "left-0",
-				align === "center" && "left-1/2 -translate-x-1/2",
-				align === "end" && "right-0",
+				alignmentClass,
 				className,
 			)}
+			style={{
+				top: position.top,
+				left: position.left,
+			}}
 			{...props}
 		>
 			{children}
-		</div>
+		</div>,
+		document.body,
 	);
 };
-
 interface DropdownMenuItemProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 	children: ReactNode;
 	inset?: boolean;
