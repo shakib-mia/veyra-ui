@@ -151,6 +151,10 @@ const Select = ({
 			color: "var(--color-foreground)",
 		}),
 
+		/*
+		 * Important:
+		 * The menu itself is rendered inside the portal.
+		 */
 		menu: (base) => ({
 			...base,
 
@@ -165,6 +169,16 @@ const Select = ({
 			boxShadow: "var(--shadow-md)",
 
 			overflow: "hidden",
+		}),
+
+		/*
+		 * Important:
+		 * This controls the portal wrapper.
+		 */
+		menuPortal: (base) => ({
+			...base,
+
+			zIndex: 9999,
 		}),
 
 		menuList: (base) => ({
@@ -319,7 +333,7 @@ const Select = ({
 			isDisabled={isDisabled}
 			isClearable={isClearable}
 			isSearchable={isSearchable}
-			menuPortalTarget={menuPortalTarget}
+			menuPortalTarget={menuPortalTarget ?? document.body}
 			styles={styles}
 			className={cn(selectVariants({ size }), className)}
 			isOptionDisabled={(option) =>

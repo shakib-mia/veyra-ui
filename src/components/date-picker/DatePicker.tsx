@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { CalendarDays } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { DayPicker } from "react-day-picker";
 
 import "react-day-picker/style.css";
@@ -29,11 +29,93 @@ export default function DatePicker({
 	className,
 }: DatePickerProps) {
 	const [open, setOpen] = useState(false);
-	console.log(value);
+
+	const buttonRef = useRef<HTMLButtonElement>(null);
+	const calendarRef = useRef<HTMLDivElement>(null);
+
+	const [position, setPosition] = useState({
+		top: 0,
+		left: 0,
+	});
+
+	useEffect(() => {
+		if (!open || !buttonRef.current) return;
+
+		const updatePosition = () => {
+			const rect = buttonRef.current!.getBoundingClientRect();
+
+			const calendarWidth = 320;
+			const calendarHeight = 360;
+			const gap = 8;
+
+			let top = rect.bottom + gap;
+			let left = rect.left;
+
+			// Prevent going outside right edge
+			if (left + calendarWidth > window.innerWidth) {
+				left = window.innerWidth - calendarWidth - gap;
+			}
+
+			// Prevent going outside left edge
+			if (left < gap) {
+				left = gap;
+			}
+
+			// If there isn't enough space below,
+			// show calendar above the button
+			if (top + calendarHeight > window.innerHeight) {
+				top = rect.top - calendarHeight - gap;
+			}
+
+			// Prevent going outside top edge
+			if (top < gap) {
+				top = gap;
+			}
+
+			setPosition({
+				top,
+				left,
+			});
+		};
+
+		updatePosition();
+
+		window.addEventListener("resize", updatePosition);
+		window.addEventListener("scroll", updatePosition, true);
+
+		return () => {
+			window.removeEventListener("resize", updatePosition);
+			window.removeEventListener("scroll", updatePosition, true);
+		};
+	}, [open]);
+
+	useEffect(() => {
+		if (!open) return;
+
+		const handleClickOutside = (event: MouseEvent) => {
+			const target = event.target as Node;
+
+			if (
+				buttonRef.current?.contains(target) ||
+				calendarRef.current?.contains(target)
+			) {
+				return;
+			}
+
+			setOpen(false);
+		};
+
+		document.addEventListener("mousedown", handleClickOutside);
+
+		return () => {
+			document.removeEventListener("mousedown", handleClickOutside);
+		};
+	}, [open]);
 
 	return (
 		<div className="relative w-full">
 			<button
+				ref={buttonRef}
 				type="button"
 				disabled={disabled}
 				onClick={() => setOpen((previous) => !previous)}
@@ -57,7 +139,14 @@ export default function DatePicker({
 			</button>
 
 			{open && !disabled && (
-				<div className="absolute left-0 top-full z-50 mt-2 rounded-lg border border-border bg-background p-3 shadow-lg">
+				<div
+					ref={calendarRef}
+					className="fixed z-9999 rounded-lg border border-border bg-background p-3 shadow-lg"
+					style={{
+						top: position.top,
+						left: position.left,
+					}}
+				>
 					<DayPicker
 						mode="single"
 						selected={value}

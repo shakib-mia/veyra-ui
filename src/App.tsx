@@ -9,6 +9,7 @@ import {
 	Button,
 	Card,
 	Checkbox,
+	DatePicker,
 	Dialog,
 	DialogBody,
 	DialogContent,
@@ -740,6 +741,30 @@ export default function App() {
 
 							<Select
 								options={[
+									{
+										label: "Individual",
+										value: "individual",
+									},
+									{
+										label: "Business",
+										value: "business",
+									},
+									{
+										label: "Individual",
+										value: "individual",
+									},
+									{
+										label: "Business",
+										value: "business",
+									},
+									{
+										label: "Individual",
+										value: "individual",
+									},
+									{
+										label: "Business",
+										value: "business",
+									},
 									{
 										label: "Individual",
 										value: "individual",
