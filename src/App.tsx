@@ -784,6 +784,12 @@ export default function App() {
 
 							<Textarea placeholder="Customer notes..." />
 						</div>
+
+						<div className="space-y-2 md:col-span-2">
+							<Label>Date</Label>
+
+							<DatePicker defaultValue={new Date()} />
+						</div>
 					</div>
 				</FormDialog>
 

@@ -8,6 +8,8 @@ import { cn } from "../../lib/cn";
 
 interface DatePickerProps {
 	value?: Date;
+	defaultValue?: Date;
+
 	onChange?: (date: Date | undefined) => void;
 
 	placeholder?: string;
@@ -21,6 +23,7 @@ interface DatePickerProps {
 
 export default function DatePicker({
 	value,
+	defaultValue,
 	onChange,
 	placeholder = "Select date",
 	disabled = false,
@@ -28,57 +31,84 @@ export default function DatePicker({
 	maxDate,
 	className,
 }: DatePickerProps) {
-	const [open, setOpen] = useState(false);
+	const [internalValue, setInternalValue] = useState<Date | undefined>(
+		defaultValue,
+	);
 
 	const buttonRef = useRef<HTMLButtonElement>(null);
 	const calendarRef = useRef<HTMLDivElement>(null);
-
 	const [position, setPosition] = useState({
 		top: 0,
 		left: 0,
 	});
 
+	const [open, setOpen] = useState(false);
+
+	const updatePosition = () => {
+		if (!buttonRef.current || !calendarRef.current) return;
+
+		const buttonRect = buttonRef.current.getBoundingClientRect();
+		const calendarRect = calendarRef.current.getBoundingClientRect();
+
+		const gap = 8;
+
+		let top = buttonRect.bottom + gap;
+		let left = buttonRect.left;
+
+		// --------------------------------
+		// Vertical positioning
+		// --------------------------------
+
+		const spaceBelow = window.innerHeight - buttonRect.bottom;
+		const spaceAbove = buttonRect.top;
+
+		// নিচে পুরো calendar না ধরলে
+		// এবং উপরে বেশি জায়গা থাকলে → উপরে দেখাবে
+		if (
+			spaceBelow < calendarRect.height + gap &&
+			spaceAbove >= calendarRect.height + gap
+		) {
+			top = buttonRect.top - calendarRect.height - gap;
+		}
+
+		// --------------------------------
+		// Horizontal positioning
+		// --------------------------------
+
+		// Right edge-এর বাইরে চলে গেলে
+		if (left + calendarRect.width > window.innerWidth - gap) {
+			left = window.innerWidth - calendarRect.width - gap;
+		}
+
+		// Left edge-এর বাইরে চলে গেলে
+		if (left < gap) {
+			left = gap;
+		}
+
+		// --------------------------------
+		// Final vertical safety
+		// --------------------------------
+
+		if (top < gap) {
+			top = gap;
+		}
+
+		if (top + calendarRect.height > window.innerHeight - gap) {
+			top = window.innerHeight - calendarRect.height - gap;
+		}
+
+		setPosition({
+			top,
+			left,
+		});
+	};
+
 	useEffect(() => {
-		if (!open || !buttonRef.current) return;
+		if (!open) return;
 
-		const updatePosition = () => {
-			const rect = buttonRef.current!.getBoundingClientRect();
-
-			const calendarWidth = 320;
-			const calendarHeight = 360;
-			const gap = 8;
-
-			let top = rect.bottom + gap;
-			let left = rect.left;
-
-			// Prevent going outside right edge
-			if (left + calendarWidth > window.innerWidth) {
-				left = window.innerWidth - calendarWidth - gap;
-			}
-
-			// Prevent going outside left edge
-			if (left < gap) {
-				left = gap;
-			}
-
-			// If there isn't enough space below,
-			// show calendar above the button
-			if (top + calendarHeight > window.innerHeight) {
-				top = rect.top - calendarHeight - gap;
-			}
-
-			// Prevent going outside top edge
-			if (top < gap) {
-				top = gap;
-			}
-
-			setPosition({
-				top,
-				left,
-			});
-		};
-
-		updatePosition();
+		requestAnimationFrame(() => {
+			updatePosition();
+		});
 
 		window.addEventListener("resize", updatePosition);
 		window.addEventListener("scroll", updatePosition, true);
@@ -89,28 +119,28 @@ export default function DatePicker({
 		};
 	}, [open]);
 
-	useEffect(() => {
-		if (!open) return;
+	/**
+	 * Controlled vs uncontrolled
+	 *
+	 * If value is provided by parent,
+	 * use parent's value.
+	 *
+	 * Otherwise use internal state.
+	 */
+	const selectedDate = value !== undefined ? value : internalValue;
 
-		const handleClickOutside = (event: MouseEvent) => {
-			const target = event.target as Node;
+	const handleChange = (date: Date | undefined) => {
+		// Update internal state when uncontrolled
+		if (value === undefined) {
+			setInternalValue(date);
+		}
 
-			if (
-				buttonRef.current?.contains(target) ||
-				calendarRef.current?.contains(target)
-			) {
-				return;
-			}
+		// Notify parent
+		onChange?.(date);
 
-			setOpen(false);
-		};
-
-		document.addEventListener("mousedown", handleClickOutside);
-
-		return () => {
-			document.removeEventListener("mousedown", handleClickOutside);
-		};
-	}, [open]);
+		// Close calendar
+		setOpen(false);
+	};
 
 	return (
 		<div className="relative w-full">
@@ -129,10 +159,14 @@ export default function DatePicker({
 			>
 				<span
 					className={cn(
-						value ? "text-foreground" : "text-muted-foreground",
+						selectedDate
+							? "text-foreground"
+							: "text-muted-foreground",
 					)}
 				>
-					{value ? format(value, "dd MMM yyyy") : placeholder}
+					{selectedDate
+						? format(selectedDate, "dd MMM yyyy")
+						: placeholder}
 				</span>
 
 				<CalendarDays size={17} className="text-muted-foreground" />
@@ -149,27 +183,11 @@ export default function DatePicker({
 				>
 					<DayPicker
 						mode="single"
-						selected={value}
-						onSelect={(date) => {
-							onChange?.(date);
-							setOpen(false);
-						}}
+						selected={selectedDate}
+						onSelect={handleChange}
 						disabled={[
-							...(minDate
-								? [
-										{
-											before: minDate,
-										},
-									]
-								: []),
-
-							...(maxDate
-								? [
-										{
-											after: maxDate,
-										},
-									]
-								: []),
+							...(minDate ? [{ before: minDate }] : []),
+							...(maxDate ? [{ after: maxDate }] : []),
 						]}
 					/>
 				</div>
