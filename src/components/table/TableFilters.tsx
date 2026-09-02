@@ -27,7 +27,7 @@ export default function TableFilters<T extends object>({
 			{filters.map((filter) => (
 				<Select
 					key={String(filter.key)}
-					className="w-44"
+					className="w-48"
 					value={values[String(filter.key)] ?? ""}
 					placeholder={filter.placeholder ?? filter.label}
 					options={filter.options}
