@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 import { Select } from "../select/select";
 import type { DataTableFilter } from "./types";
 
@@ -6,6 +8,7 @@ interface TableFiltersProps<T extends object> {
 	values: Record<string, string>;
 	onChange: (key: string, value: string) => void;
 	disabled?: boolean;
+	actions?: ReactNode;
 }
 
 export default function TableFilters<T extends object>({
@@ -13,8 +16,9 @@ export default function TableFilters<T extends object>({
 	values,
 	onChange,
 	disabled = false,
+	actions,
 }: TableFiltersProps<T>) {
-	if (filters.length === 0) {
+	if (filters.length === 0 && !actions) {
 		return null;
 	}
 
@@ -32,6 +36,8 @@ export default function TableFilters<T extends object>({
 					onChange={(value) => onChange(String(filter.key), value)}
 				/>
 			))}
+
+			{actions}
 		</div>
 	);
 }

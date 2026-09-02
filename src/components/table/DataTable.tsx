@@ -35,6 +35,7 @@ export default function DataTable<T extends object>({
 	rowAlign,
 
 	headerAlign,
+	filterActions,
 }: DataTableProps<T>) {
 	/**
 	 * Client-side state
@@ -389,6 +390,7 @@ export default function DataTable<T extends object>({
 							values={activeFilterValues}
 							onChange={handleFilterChange}
 							disabled={loading}
+							actions={filterActions}
 						/>
 					)}
 				</div>
