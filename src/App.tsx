@@ -772,6 +772,7 @@ export default function App() {
 									pageSizeOptions: [5, 10],
 								}}
 								onFilteredDataChange={setFilteredCustomers}
+								searchExcludeFields={["joinedAt"]}
 								filterActions={(filteredData) => (
 									<div className="flex gap-2">
 										<Button
