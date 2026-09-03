@@ -773,7 +773,7 @@ export default function App() {
 								}}
 								onFilteredDataChange={setFilteredCustomers}
 								filterActions={(filteredData) => (
-									<div className="flex">
+									<div className="flex gap-2">
 										<Button
 											onClick={() => setServerFilter("")}
 										>

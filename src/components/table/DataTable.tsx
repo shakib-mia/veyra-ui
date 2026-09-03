@@ -9,6 +9,24 @@ import FilterChips, { type FilterChip } from "../filter-chips/FilterChips";
 
 import type { DataTableProps } from "./types";
 
+const searchableString = (value: unknown): string => {
+	if (value === null || value === undefined) {
+		return "";
+	}
+
+	if (typeof value === "object") {
+		if (Array.isArray(value)) {
+			return value.map(searchableString).join(" ");
+		}
+
+		return Object.entries(value as Record<string, unknown>)
+			.map(([key, value]) => `${key} ${searchableString(value)}`)
+			.join(" ");
+	}
+
+	return String(value);
+};
+
 export default function DataTable<T extends object>({
 	data,
 	columns,
@@ -101,11 +119,7 @@ export default function DataTable<T extends object>({
 			 */
 			const matchesSearch =
 				!keyword ||
-				Object.values(row)
-					.map((value) => String(value ?? ""))
-					.join(" ")
-					.toLowerCase()
-					.includes(keyword);
+				searchableString(row).toLowerCase().includes(keyword);
 
 			/**
 			 * Filters
@@ -267,38 +281,60 @@ export default function DataTable<T extends object>({
 			return [];
 		}
 
-		return filters.flatMap((filter) => {
-			const key = String(filter.key);
+		const chips: FilterChip[] = [];
 
-			const value = activeFilterValues[key];
+		/**
+		 * Search chip
+		 */
+		if (activeSearch.trim()) {
+			chips.push({
+				key: "__search__",
+				label: "Search",
+				value: activeSearch,
+				valueLabel: activeSearch,
+			});
+		}
 
-			/**
-			 * Empty and "all"
-			 * are inactive.
-			 */
-			if (!value || value === "all") {
-				return [];
-			}
+		/**
+		 * Filter chips
+		 */
+		chips.push(
+			...filters.flatMap((filter) => {
+				const key = String(filter.key);
+				const value = activeFilterValues[key];
 
-			const selectedOption = filter.options?.find(
-				(option) => option.value === value,
-			);
+				if (!value || value === "all") {
+					return [];
+				}
 
-			return [
-				{
-					key,
-					label: filter.label,
-					value,
-					valueLabel: selectedOption?.label ?? value,
-				},
-			];
-		});
-	}, [filters, activeFilterValues, showFilterChips]);
+				const selectedOption = filter.options?.find(
+					(option) => option.value === value,
+				);
+
+				return [
+					{
+						key,
+						label: filter.label,
+						value,
+						valueLabel: selectedOption?.label ?? value,
+					},
+				];
+			}),
+		);
+
+		return chips;
+	}, [activeSearch, filters, activeFilterValues, showFilterChips]);
 
 	/**
 	 * Remove one filter
 	 */
 	const handleRemoveFilter = (key: string) => {
+		if (key === "__search__") {
+			handleSearchChange("");
+
+			return;
+		}
+
 		handleFilterChange(key, "");
 	};
 
@@ -307,12 +343,25 @@ export default function DataTable<T extends object>({
 	 */
 	const handleClearFilters = () => {
 		/**
-		 * Server mode
+		 * Clear search
+		 */
+		if (isServerSearch) {
+			onSearchChange?.("");
+
+			if (isServerPagination) {
+				pagination?.onPageChange?.(1);
+			}
+		} else {
+			setClientSearch("");
+			setClientPage(1);
+		}
+
+		/**
+		 * Server mode filters
 		 */
 		if (isServerFilter) {
 			filters.forEach((filter) => {
 				const key = String(filter.key);
-
 				const value = activeFilterValues[key];
 
 				if (!value || value === "all") {
@@ -322,9 +371,6 @@ export default function DataTable<T extends object>({
 				onFilterChange?.(key, "");
 			});
 
-			/**
-			 * Only reset page once.
-			 */
 			if (isServerPagination) {
 				pagination?.onPageChange?.(1);
 			}
@@ -333,7 +379,7 @@ export default function DataTable<T extends object>({
 		}
 
 		/**
-		 * Client mode
+		 * Client mode filters
 		 */
 		setClientFilterValues({});
 		setClientPage(1);
