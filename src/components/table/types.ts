@@ -83,6 +83,6 @@ export interface DataTableProps<T extends object> {
 	) => TableAlign | undefined;
 
 	headerAlign?: TableAlign;
-
-	filterActions?: ReactNode;
+	onFilteredDataChange?: (rows: T[]) => void;
+	filterActions?: ReactNode | ((filteredData: T[]) => ReactNode);
 }

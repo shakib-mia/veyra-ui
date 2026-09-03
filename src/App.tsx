@@ -273,6 +273,7 @@ export default function App() {
 
 	const [serverFilter, setServerFilter] = useState("");
 	const [formLoading, setFormLoading] = useState(false);
+	const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
 
 	const form = useForm<PlaygroundFormValues>({
 		resolver: zodResolver(playgroundFormSchema),
@@ -770,11 +771,31 @@ export default function App() {
 									defaultPageSize: 5,
 									pageSizeOptions: [5, 10],
 								}}
-								filterActions={
-									<Button onClick={() => setServerFilter("")}>
-										Clear
-									</Button>
-								}
+								onFilteredDataChange={setFilteredCustomers}
+								filterActions={(filteredData) => (
+									<div className="flex">
+										<Button
+											onClick={() => setServerFilter("")}
+										>
+											Clear
+										</Button>
+
+										<Button
+											onClick={() => {
+												console.log(
+													"FILTERED CUSTOMERS:",
+													filteredData,
+												);
+												console.log(
+													"COUNT:",
+													filteredData.length,
+												);
+											}}
+										>
+											Test Filtered Data
+										</Button>
+									</div>
+								)}
 							/>
 						</div>
 					</Card>

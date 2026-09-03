@@ -366,6 +366,15 @@ export default function DataTable<T extends object>({
 		setClientPage(1);
 	};
 
+	// useEffect(() => {
+	// 	onFilteredDataChange?.(filteredData);
+	// }, [filteredData, onFilteredDataChange]);
+
+	const renderedFilterActions =
+		typeof filterActions === "function"
+			? filterActions(filteredData)
+			: filterActions;
+
 	return (
 		<div className="space-y-4">
 			{/* Search + Filters */}
@@ -390,7 +399,7 @@ export default function DataTable<T extends object>({
 							values={activeFilterValues}
 							onChange={handleFilterChange}
 							disabled={loading}
-							actions={filterActions}
+							actions={renderedFilterActions}
 						/>
 					)}
 				</div>
