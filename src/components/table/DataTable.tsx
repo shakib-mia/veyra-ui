@@ -9,18 +9,36 @@ import FilterChips, { type FilterChip } from "../filter-chips/FilterChips";
 
 import type { DataTableProps } from "./types";
 
-const searchableString = (value: unknown): string => {
+const searchableString = (
+	value: unknown,
+	excludeFields: string[] = [],
+	currentPath = "",
+): string => {
 	if (value === null || value === undefined) {
 		return "";
 	}
 
-	if (typeof value === "object") {
-		if (Array.isArray(value)) {
-			return value.map(searchableString).join(" ");
-		}
+	if (Array.isArray(value)) {
+		return value
+			.map((item) => searchableString(item, excludeFields, currentPath))
+			.join(" ");
+	}
 
+	if (typeof value === "object") {
 		return Object.entries(value as Record<string, unknown>)
-			.map(([key, value]) => `${key} ${searchableString(value)}`)
+			.filter(([key]) => {
+				const path = currentPath ? `${currentPath}.${key}` : key;
+
+				return (
+					!excludeFields.includes(key) &&
+					!excludeFields.includes(path)
+				);
+			})
+			.map(([key, value]) => {
+				const path = currentPath ? `${currentPath}.${key}` : key;
+
+				return searchableString(value, excludeFields, path);
+			})
 			.join(" ");
 	}
 
@@ -54,6 +72,7 @@ export default function DataTable<T extends object>({
 
 	headerAlign,
 	filterActions,
+	searchExcludeFields = [],
 }: DataTableProps<T>) {
 	/**
 	 * Client-side state
@@ -119,7 +138,9 @@ export default function DataTable<T extends object>({
 			 */
 			const matchesSearch =
 				!keyword ||
-				searchableString(row).toLowerCase().includes(keyword);
+				searchableString(row, searchExcludeFields)
+					.toLowerCase()
+					.includes(keyword);
 
 			/**
 			 * Filters

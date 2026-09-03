@@ -85,4 +85,5 @@ export interface DataTableProps<T extends object> {
 	headerAlign?: TableAlign;
 	onFilteredDataChange?: (rows: T[]) => void;
 	filterActions?: ReactNode | ((filteredData: T[]) => ReactNode);
+	searchExcludeFields?: string[];
 }
