@@ -109,68 +109,89 @@ const DropdownMenuContent = ({
 	...props
 }: DropdownMenuContentProps) => {
 	const { open, setOpen } = useDropdown();
-
 	const contentRef = useRef<HTMLDivElement>(null);
 	const triggerRef = useRef<HTMLElement | null>(null);
-
-	const [position, setPosition] = useState({
-		top: 0,
-		left: 0,
-	});
-
+	const [position, setPosition] = useState({ top: 0, left: 0 });
+	const [placement, setPlacement] = useState<"top" | "bottom">("bottom");
 	useEffect(() => {
 		if (!open) return;
-
 		const trigger = document.activeElement;
-
 		if (trigger instanceof HTMLElement) {
 			triggerRef.current = trigger;
 		}
-
 		const updatePosition = () => {
 			const triggerElement = triggerRef.current;
-
-			if (!triggerElement) return;
-
-			const rect = triggerElement.getBoundingClientRect();
-
+			const contentElement = contentRef.current;
+			if (!triggerElement || !contentElement) return;
+			const triggerRect = triggerElement.getBoundingClientRect();
+			const menuRect = contentElement.getBoundingClientRect();
 			const gap = 8;
-
-			let top = rect.bottom + gap;
-			let left = rect.left;
-
+			const viewportPadding = 8;
+			const spaceBelow =
+				window.innerHeight - triggerRect.bottom - viewportPadding;
+			const spaceAbove = triggerRect.top - viewportPadding;
+			/* * Decide whether the menu should open * above or below the trigger. */ const shouldOpenAbove =
+				spaceBelow < menuRect.height + gap && spaceAbove > spaceBelow;
+			let top: number;
+			if (shouldOpenAbove) {
+				top = triggerRect.top - menuRect.height - gap;
+				setPlacement("top");
+			} else {
+				top = triggerRect.bottom + gap;
+				setPlacement("bottom");
+			}
+			/* * Horizontal positioning */ let left = triggerRect.left;
 			if (align === "center") {
-				left = rect.left + rect.width / 2;
+				left = triggerRect.left + triggerRect.width / 2;
 			}
-
 			if (align === "end") {
-				left = rect.right;
+				left = triggerRect.right;
 			}
-
-			setPosition({
-				top,
-				left,
-			});
+			/* * Keep dropdown inside viewport horizontally. */ const menuWidth =
+				menuRect.width;
+			if (align === "start") {
+				left = Math.max(
+					viewportPadding,
+					Math.min(
+						left,
+						window.innerWidth - menuWidth - viewportPadding,
+					),
+				);
+			}
+			if (align === "center") {
+				left = Math.max(
+					viewportPadding + menuWidth / 2,
+					Math.min(
+						left,
+						window.innerWidth - viewportPadding - menuWidth / 2,
+					),
+				);
+			}
+			if (align === "end") {
+				left = Math.min(
+					window.innerWidth - viewportPadding,
+					Math.max(left, menuWidth + viewportPadding),
+				);
+			}
+			/* * If the menu is taller than the available * viewport space, keep it inside the viewport. */ const maxTop =
+				window.innerHeight - menuRect.height - viewportPadding;
+			top = Math.max(viewportPadding, Math.min(top, maxTop));
+			setPosition({ top, left });
 		};
-
-		updatePosition();
-
+		/* * First render happens before the menu has its * actual dimensions, so wait one frame. */ requestAnimationFrame(
+			updatePosition,
+		);
 		window.addEventListener("resize", updatePosition);
 		window.addEventListener("scroll", updatePosition, true);
-
 		return () => {
 			window.removeEventListener("resize", updatePosition);
-
 			window.removeEventListener("scroll", updatePosition, true);
 		};
 	}, [open, align]);
-
 	useEffect(() => {
 		if (!open) return;
-
 		const handlePointerDown = (event: PointerEvent) => {
 			const target = event.target;
-
 			if (
 				target instanceof Node &&
 				!contentRef.current?.contains(target) &&
@@ -179,33 +200,25 @@ const DropdownMenuContent = ({
 				setOpen(false);
 			}
 		};
-
 		const handleKeyDown = (event: KeyboardEvent) => {
 			if (event.key === "Escape") {
 				setOpen(false);
 			}
 		};
-
 		document.addEventListener("pointerdown", handlePointerDown);
-
 		document.addEventListener("keydown", handleKeyDown);
-
 		return () => {
 			document.removeEventListener("pointerdown", handlePointerDown);
-
 			document.removeEventListener("keydown", handleKeyDown);
 		};
 	}, [open, setOpen]);
-
 	if (!open) return null;
-
 	const alignmentClass =
 		align === "start"
-			? "-translate-x-0"
+			? "translate-x-0"
 			: align === "center"
 				? "-translate-x-1/2"
 				: "-translate-x-full";
-
 	return createPortal(
 		<div
 			ref={contentRef}
@@ -216,15 +229,15 @@ const DropdownMenuContent = ({
 				"bg-popover p-1",
 				"shadow-md",
 				alignmentClass,
+				placement === "top" && "origin-bottom",
+				placement === "bottom" && "origin-top",
 				className,
 			)}
-			style={{
-				top: position.top,
-				left: position.left,
-			}}
+			style={{ top: position.top, left: position.left }}
 			{...props}
 		>
-			{children}
+			{" "}
+			{children}{" "}
 		</div>,
 		document.body,
 	);
