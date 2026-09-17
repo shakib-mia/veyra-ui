@@ -299,6 +299,22 @@ const Select = ({
 			},
 		};
 
+		const handleEdit = (event: React.MouseEvent<HTMLButtonElement>) => {
+			event.preventDefault();
+			event.stopPropagation();
+
+			setMenuOpen(false);
+			onEditOption?.(data);
+		};
+
+		const handleDelete = (event: React.MouseEvent<HTMLButtonElement>) => {
+			event.preventDefault();
+			event.stopPropagation();
+
+			setMenuOpen(false);
+			onDeleteOption?.(data);
+		};
+
 		return (
 			<components.Option {...props} innerProps={optionInnerProps}>
 				<div className="flex items-center justify-between gap-2">
@@ -307,23 +323,20 @@ const Select = ({
 					</span>
 
 					{showActions && !optionDisabled && (
-						<div className="flex shrink-0 items-center gap-1">
+						<div
+							className="flex shrink-0 items-center gap-1"
+							data-select-action
+							onMouseDown={(event) => {
+								event.preventDefault();
+								event.stopPropagation();
+							}}
+						>
 							{isEditable && (
 								<button
 									type="button"
 									data-select-action
 									className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-									onMouseDown={(event) => {
-										event.preventDefault();
-										event.stopPropagation();
-
-										setMenuOpen(false);
-										onEditOption?.(data);
-									}}
-									onClick={(event) => {
-										event.preventDefault();
-										event.stopPropagation();
-									}}
+									onClick={handleEdit}
 									aria-label={`Edit ${data.label}`}
 								>
 									<Pencil className="size-3.5" />
@@ -335,17 +348,7 @@ const Select = ({
 									type="button"
 									data-select-action
 									className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-destructive"
-									onMouseDown={(event) => {
-										event.preventDefault();
-										event.stopPropagation();
-
-										setMenuOpen(false);
-										onEditOption?.(data);
-									}}
-									onClick={(event) => {
-										event.preventDefault();
-										event.stopPropagation();
-									}}
+									onClick={handleDelete}
 									aria-label={`Delete ${data.label}`}
 								>
 									<Trash2 className="size-3.5" />
@@ -357,7 +360,6 @@ const Select = ({
 			</components.Option>
 		);
 	};
-
 	/**
 	 * Custom MenuList
 	 *
