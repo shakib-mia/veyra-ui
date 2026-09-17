@@ -102,6 +102,7 @@ const Select = ({
 	size,
 }: SelectProps) => {
 	const [internalValue, setInternalValue] = useState(defaultValue);
+	const [menuOpen, setMenuOpen] = useState(false);
 
 	const isControlled = value !== undefined;
 
@@ -115,6 +116,8 @@ const Select = ({
 		_actionMeta: ActionMeta<SelectOption>,
 	) => {
 		const nextValue = option?.value ?? "";
+
+		setMenuOpen(false);
 
 		if (!isControlled) {
 			setInternalValue(nextValue);
@@ -314,6 +317,7 @@ const Select = ({
 										event.preventDefault();
 										event.stopPropagation();
 
+										setMenuOpen(false);
 										onEditOption?.(data);
 									}}
 									onClick={(event) => {
@@ -335,7 +339,8 @@ const Select = ({
 										event.preventDefault();
 										event.stopPropagation();
 
-										onDeleteOption?.(data);
+										setMenuOpen(false);
+										onEditOption?.(data);
 									}}
 									onClick={(event) => {
 										event.preventDefault();
@@ -439,6 +444,9 @@ const Select = ({
 			isDisabled={isDisabled}
 			isClearable={isClearable}
 			isSearchable={isSearchable}
+			menuIsOpen={menuOpen}
+			onMenuOpen={() => setMenuOpen(true)}
+			onMenuClose={() => setMenuOpen(false)}
 			menuPortalTarget={menuPortalTarget ?? document.body}
 			styles={styles}
 			className={cn(selectVariants({ size }), className)}
