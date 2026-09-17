@@ -3,11 +3,14 @@ import ReactSelect, { components } from "react-select";
 
 import type {
 	ActionMeta,
-	SingleValue,
 	MenuListProps,
+	OptionProps,
+	SingleValue,
 	StylesConfig,
 } from "react-select";
 import type { VariantProps } from "class-variance-authority";
+
+import { Pencil, Trash2 } from "lucide-react";
 
 import { cn } from "../../lib/cn";
 import { selectVariants } from "./select.variants";
@@ -51,6 +54,26 @@ export type SelectProps = VariantProps<typeof selectVariants> & {
 	 * Label for the "Add new" option.
 	 */
 	createOptionLabel?: string;
+
+	/**
+	 * Show edit action for each option.
+	 */
+	isEditable?: boolean;
+
+	/**
+	 * Called when an option's edit action is clicked.
+	 */
+	onEditOption?: (option: SelectOption) => void;
+
+	/**
+	 * Show delete action for each option.
+	 */
+	isDeletable?: boolean;
+
+	/**
+	 * Called when an option's delete action is clicked.
+	 */
+	onDeleteOption?: (option: SelectOption) => void;
 };
 
 const Select = ({
@@ -65,9 +88,17 @@ const Select = ({
 	isDisabled = false,
 	isClearable = false,
 	isSearchable = true,
+
 	isCreatable = false,
 	onCreateOption,
 	createOptionLabel = "Add new",
+
+	isEditable = false,
+	onEditOption,
+
+	isDeletable = false,
+	onDeleteOption,
+
 	size,
 }: SelectProps) => {
 	const [internalValue, setInternalValue] = useState(defaultValue);
@@ -151,10 +182,6 @@ const Select = ({
 			color: "var(--color-foreground)",
 		}),
 
-		/*
-		 * Important:
-		 * The menu itself is rendered inside the portal.
-		 */
 		menu: (base) => ({
 			...base,
 
@@ -171,10 +198,6 @@ const Select = ({
 			overflow: "hidden",
 		}),
 
-		/*
-		 * Important:
-		 * This controls the portal wrapper.
-		 */
 		menuPortal: (base) => ({
 			...base,
 
@@ -249,9 +272,73 @@ const Select = ({
 	};
 
 	/**
+	 * Custom Option
+	 *
+	 * Adds optional Edit and Delete actions to each option.
+	 */
+	const Option = (props: OptionProps<SelectOption, false>) => {
+		const { data, isDisabled: optionDisabled } = props;
+
+		const showActions = isEditable || isDeletable;
+
+		return (
+			<components.Option {...props}>
+				<div className="flex items-center justify-between gap-2">
+					<span className="min-w-0 flex-1 truncate">
+						{data.label}
+					</span>
+
+					{showActions && !optionDisabled && (
+						<div
+							className="flex shrink-0 items-center gap-1"
+							onMouseDown={(event) => {
+								event.preventDefault();
+								event.stopPropagation();
+							}}
+						>
+							{isEditable && (
+								<button
+									type="button"
+									className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+									onMouseDown={(event) => {
+										event.preventDefault();
+										event.stopPropagation();
+
+										onEditOption?.(data);
+									}}
+									aria-label={`Edit ${data.label}`}
+								>
+									<Pencil className="size-3.5" />
+								</button>
+							)}
+
+							{isDeletable && (
+								<button
+									type="button"
+									className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-destructive"
+									onMouseDown={(event) => {
+										event.preventDefault();
+										event.stopPropagation();
+
+										onDeleteOption?.(data);
+									}}
+									aria-label={`Delete ${data.label}`}
+								>
+									<Trash2 className="size-3.5" />
+								</button>
+							)}
+						</div>
+					)}
+				</div>
+			</components.Option>
+		);
+	};
+
+	/**
 	 * Custom MenuList
 	 *
-	 * Adds an "Add new" action at the bottom of the dropdown.
+	 * Adds an optional "Add new" action at the bottom
+	 * of the dropdown.
 	 */
 	const MenuList = (props: MenuListProps<SelectOption, false>) => {
 		return (
@@ -340,6 +427,7 @@ const Select = ({
 				option.disabled || isOptionDisabled?.(option) === true
 			}
 			components={{
+				Option,
 				MenuList,
 			}}
 			onChange={handleChange}

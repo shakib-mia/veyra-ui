@@ -84,6 +84,9 @@ export function FormField<
 								value={field.value}
 								onChange={field.onChange}
 								options={options}
+								isEditable
+								onEditOption={(item) => alert(item.value)}
+								isDeletable
 								placeholder={
 									placeholder ??
 									`Select ${label?.toLowerCase()}`
