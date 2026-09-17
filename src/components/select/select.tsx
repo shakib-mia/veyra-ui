@@ -277,34 +277,48 @@ const Select = ({
 	 * Adds optional Edit and Delete actions to each option.
 	 */
 	const Option = (props: OptionProps<SelectOption, false>) => {
-		const { data, isDisabled: optionDisabled } = props;
+		const { data, isDisabled: optionDisabled, innerProps } = props;
 
 		const showActions = isEditable || isDeletable;
 
+		const optionInnerProps = {
+			...innerProps,
+			onMouseDown: (event: React.MouseEvent<HTMLDivElement>) => {
+				const target = event.target as HTMLElement;
+
+				if (target.closest("[data-select-action]")) {
+					event.preventDefault();
+					event.stopPropagation();
+					return;
+				}
+
+				innerProps.onMouseDown?.(event);
+			},
+		};
+
 		return (
-			<components.Option {...props}>
+			<components.Option {...props} innerProps={optionInnerProps}>
 				<div className="flex items-center justify-between gap-2">
 					<span className="min-w-0 flex-1 truncate">
 						{data.label}
 					</span>
 
 					{showActions && !optionDisabled && (
-						<div
-							className="flex shrink-0 items-center gap-1"
-							onMouseDown={(event) => {
-								event.preventDefault();
-								event.stopPropagation();
-							}}
-						>
+						<div className="flex shrink-0 items-center gap-1">
 							{isEditable && (
 								<button
 									type="button"
+									data-select-action
 									className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
 									onMouseDown={(event) => {
 										event.preventDefault();
 										event.stopPropagation();
 
 										onEditOption?.(data);
+									}}
+									onClick={(event) => {
+										event.preventDefault();
+										event.stopPropagation();
 									}}
 									aria-label={`Edit ${data.label}`}
 								>
@@ -315,12 +329,17 @@ const Select = ({
 							{isDeletable && (
 								<button
 									type="button"
+									data-select-action
 									className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-destructive"
 									onMouseDown={(event) => {
 										event.preventDefault();
 										event.stopPropagation();
 
 										onDeleteOption?.(data);
+									}}
+									onClick={(event) => {
+										event.preventDefault();
+										event.stopPropagation();
 									}}
 									aria-label={`Delete ${data.label}`}
 								>
